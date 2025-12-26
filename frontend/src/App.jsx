@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 
-const API_URL = 'http://localhost:10000';
+const API_URL = 'https://photo-analyzer-1-x9qb.onrender.com/';
 
 export default function PhotoAnalyzer() {
   const [uploadedImage, setUploadedImage] = useState(null);
