@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import os
-os.environ["OPENCV_VIDEOIO_PRIORITY_MSMF"] = "0";
 
 
-const API_URL = 'https://photo-analyzer-1-x9qb.onrender.com';
+const API_URL = 'http://localhost:10000';
 
 export default function PhotoAnalyzer() {
   const [uploadedImage, setUploadedImage] = useState(null);
@@ -31,15 +29,23 @@ export default function PhotoAnalyzer() {
     }
   };
 
-  const handleImageUpload = (file) => {
+const handleImageUpload = (file) => {
+    // AJOUT DE CETTE VÉRIFICATION :
+    if (!file) {
+        console.warn("Aucun fichier sélectionné");
+        return;
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
-      setUploadedImage(e.target.result);
-      setAnalysisResult(null);
-      analyzeImage(e.target.result);
+        setUploadedImage(e.target.result);
+        setAnalysisResult(null);
+        analyzeImage(e.target.result);
     };
-    reader.readAsDataURL(file);
-  };
+    
+    // Si 'file' est undefined, cette ligne fait planter l'application
+    reader.readAsDataURL(file); 
+};
 
   const analyzeImage = async (imageData) => {
     setIsAnalyzing(true);

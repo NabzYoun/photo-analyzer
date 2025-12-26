@@ -54,7 +54,7 @@
 
     <script type="text/babel">
         const { useState } = React;
-        const API_URL = 'https://photo-analyzer-1-x9qb.onrender.com';
+        const API_URL = 'http://localhost:10000';
         
 
         function MetricCard({ label, value, max, color }) {
@@ -127,16 +127,23 @@
                 }
             };
 
-            const handleImageUpload = (file) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    setUploadedImage(e.target.result);
-                    setAnalysisResult(null);
-                    analyzeImage(e.target.result);
-                };
-                reader.readAsDataURL(file);
-            };
+                const handleImageUpload = (file) => {
+    // AJOUT DE CETTE VÉRIFICATION :
+    if (!file) {
+        console.warn("Aucun fichier sélectionné");
+        return;
+    }
 
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        setUploadedImage(e.target.result);
+        setAnalysisResult(null);
+        analyzeImage(e.target.result);
+    };
+    
+    // Si 'file' est undefined, cette ligne fait planter l'application
+    reader.readAsDataURL(file); 
+};
             const analyzeImage = async (imageData) => {
                 setIsAnalyzing(true);
                 try {
@@ -147,6 +154,7 @@
                     });
 
                     const data = await response.json();
+                    console.log("Données reçues du Python:", data); // AJOUTEZ CECI
                     setAnalysisResult(data);
                 } catch (error) {
                     console.error('Erreur:', error);

@@ -56,13 +56,30 @@ def api_analyze():
             'contrast': analysis.get('contrast', 0),
             'noise': analysis.get('noise', 0),
             'quality_score': analysis.get('quality_score', 0),
+            
+            # Sujets détectés
+            'subjects': analysis.get('subjects', []),
+            
+            # Style affinities (Top 5)
+            'style_affinities': analysis.get('style_affinities', {}),
+            
+            # Composition rules avec recommandations
+            'composition_rules': analysis.get('composition_rules', {}),
             'composition_score': analysis.get('composition', {}).get('composition_score', 0),
+            
+            # Style recommandé
             'best_style': extract_best_style(analysis),
+            
+            # Prompt IA généré
             'ai_prompt': generate_ai_prompt(analysis),
+            
+            # Conseils d'experts
             'advice': extract_advice(analysis),
-            'full_analysis': make_json_safe(analysis)  # Pour debug
+            
+            # Analyse complète (debug)
+            'full_analysis': make_json_safe(analysis)
         }
-        
+        response = json.loads(json.dumps(response, default=str))
         return jsonify(response), 200
     
     except Exception as e:
@@ -91,6 +108,7 @@ def analyze_image_from_array(img_rgb):
         dominant_colors, analyze_composition, build_zone_report
     )
     from ai_models import predict_scene, compute_all_style_affinities, compute_quality_score
+    from composition_rules import CompositionAnalyzer
     
     gray = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2GRAY)
     
@@ -150,9 +168,18 @@ def analyze_image_from_array(img_rgb):
     quality = compute_quality_score(analysis)
     analysis['quality_score'] = quality
     
-    # Style affinities
+    # Style affinities (Top 5)
     style_affinities = compute_all_style_affinities(img_rgb, analysis)
     analysis['style_affinities'] = style_affinities
+    
+    # Analyse composition rules
+    try:
+        composition_analyzer = CompositionAnalyzer()
+        composition_rules_analysis = composition_analyzer.analyze_all_rules(img_rgb, subjects, analysis)
+        analysis['composition_rules'] = composition_rules_analysis
+    except Exception as e:
+        print(f"Erreur composition rules: {e}")
+        analysis['composition_rules'] = {}
     
     return analysis
 
@@ -201,7 +228,7 @@ def generate_ai_prompt(analysis):
                 prompt_parts.append("portrait")
             else:
                 prompt_parts.append("group portrait")
-        elif any(s['class'] == 'person' for s in subjects):
+        elif any(s.get('class') == 'person' for s in subjects):
             prompt_parts.append("photograph of person")
         else:
             prompt_parts.append("photograph")
@@ -249,7 +276,7 @@ def generate_ai_prompt(analysis):
         
         # Joindre
         prompt = ", ".join(prompt_parts)
-        prompt = prompt[0].upper() + prompt[1:]  # Capitalize
+        prompt = prompt[0].upper() + prompt[1:] if prompt else "Professional photograph"
         prompt += ". 8k, professional photography"
         
         return prompt
@@ -295,7 +322,7 @@ def extract_advice(analysis):
     return advice[:5]  # Max 5 conseils
 
 
-# Route simple pour tester
+# Routes de test
 @app.route('/', methods=['GET'])
 def index():
     return jsonify({'status': 'API running', 'version': '1.0'})
@@ -313,4 +340,3 @@ if __name__ == "__main__":
         port=int(os.environ.get("PORT", 10000)),
         debug=False
     )
-
