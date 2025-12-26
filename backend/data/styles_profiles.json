@@ -1,0 +1,1853 @@
+[
+  {
+    "id": "ansel_adams",
+    "label": "Ansel Adams",
+    "category": "black_and_white_landscape",
+    "difficulty": "advanced",
+    "description": "Paysage noir et blanc à fort contraste, utilisant le système de zones pour exploiter toute la gamme dynamique. Images majestueuses, nettes et dramatiques.",
+    "key_characteristics": ["Système de zones", "Contraste élevé", "Netteté extrême"],
+    "recommended_subjects": ["Montagnes", "Arbres isolés", "Nuages dramatiques"],
+    "constraints": { 
+      "black_and_white": true,
+      "requires_landscape": true,
+      "requires_outdoor": true,
+      "requires_no_face": true,
+      "requires_no_human": true,
+      "min_contrast": 60,
+      "min_sharpness": 150
+    },
+    "editing_guidelines": ["Dodge & Burn", "Contraste local", "Préservation des hautes lumières"],
+    "weights": {
+      "contrast": 0.35,
+      "sharpness": 0.25,
+      "dynamic_range": 0.25,
+      "noise": -0.15
+    },
+    "target_values": {
+      "brightness": {"min": 100, "max": 160, "ideal": 130, "unit": "0-255"},
+      "contrast": {"min": 60, "max": 100, "ideal": 80, "unit": "std_dev"},
+      "exposure": {"adjustment": "-0.3 to +0.3 EV", "priority": "medium"},
+      "shadows": {"adjustment": "-20 to +10", "priority": "high"},
+      "highlights": {"adjustment": "-40 to -60", "priority": "critical"},
+      "clarity": {"adjustment": "+20 to +40", "priority": "high"}
+    },
+    "lightroom_preset": {
+      "exposure": 0,
+      "contrast": 50,
+      "highlights": -50,
+      "shadows": 0,
+      "whites": -40,
+      "blacks": -40,
+      "clarity": 30,
+      "saturation": -100
+    },
+    "pro_tips": [
+      "Utilisez le système de zones d'Ansel Adams pour contrôler précisément chaque ton",
+      "Privilégiez la netteté absolue : utilisez un trépied et une petite ouverture (f/8-f/16)",
+      "Shootez en RAW pour maximiser la plage dynamique en post-production"
+    ],
+    "common_mistakes": [
+      "Ne pas surveiller les hautes lumières cramées dans le ciel",
+      "Négliger le dodging & burning sélectif",
+      "Convertir en N&B sans réfléchir aux tonalités spécifiques"
+    ]
+  },
+
+  {
+    "id": "fine_art_bw_landscape",
+    "label": "Paysage N&B Fine Art",
+    "category": "black_and_white_landscape",
+    "difficulty": "intermediate",
+    "description": "Paysages noir et blanc épurés, mettant l'accent sur les textures, les gris subtils et la composition minimaliste.",
+    "key_characteristics": ["Minimalisme", "Textures", "Gris subtils"],
+    "recommended_subjects": ["Mer calme", "Dunes", "Architecture épurée"],
+    "constraints": { 
+      "black_and_white": true,
+      "requires_landscape": true,
+      "requires_outdoor": true,
+      "requires_no_face": true,
+      "max_objects": 5,
+      "requires_simplicity": true
+    },
+    "weights": {
+      "contrast": 0.25,
+      "softness": 0.3,
+      "sharpness": 0.25,
+      "noise": -0.2
+    },
+    "lightroom_preset": {
+      "exposure": 0.2,
+      "contrast": 20,
+      "highlights": -20,
+      "shadows": 20,
+      "clarity": 10,
+      "saturation": -100
+    },
+    "pro_tips": [
+      "Utilisez des poses longues pour lisser l'eau et créer de la sérénité",
+      "Privilégiez les compositions minimalistes avec beaucoup d'espace négatif",
+      "Les filtres ND sont essentiels pour les poses longues en plein jour"
+    ],
+    "common_mistakes": [
+      "Trop d'éléments dans le cadre",
+      "Contraste trop élevé qui brise la douceur",
+      "Oublier l'importance du ciel dans la composition"
+    ]
+  },
+
+  {
+    "id": "minimalist_bw_landscape",
+    "label": "Paysage N&B Minimaliste",
+    "category": "black_and_white_landscape",
+    "difficulty": "intermediate",
+    "description": "Paysages très épurés jouant sur l'espace négatif et des formes simples.",
+    "key_characteristics": ["Espace négatif", "Simplicité", "Silence visuel"],
+    "recommended_subjects": ["Arbres seuls", "Horizon", "Neige"],
+    "constraints": { 
+      "black_and_white": true,
+      "requires_landscape": true,
+      "requires_outdoor": true,
+      "requires_no_face": true,
+      "max_objects": 2,
+      "requires_simplicity": true,
+      "requires_negative_space": true
+    },
+    "weights": {
+      "composition_simplicity": 0.4,
+      "softness": 0.3,
+      "sharpness": 0.2,
+      "contrast": -0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0.3,
+      "contrast": 15,
+      "highlights": -15,
+      "shadows": 15,
+      "clarity": 5,
+      "saturation": -100
+    },
+    "pro_tips": [
+      "Un seul sujet fort dans le cadre est souvent suffisant",
+      "L'espace vide est aussi important que le sujet lui-même",
+      "Pensez en termes de formes géométriques simples"
+    ],
+    "common_mistakes": [
+      "Remplir le cadre par peur du vide",
+      "Placer le sujet au centre systématiquement",
+      "Négliger l'équilibre visuel"
+    ]
+  },
+
+  {
+    "id": "atmospheric_bw_landscape",
+    "label": "Paysage Atmosphérique N&B",
+    "category": "black_and_white_landscape",
+    "difficulty": "intermediate",
+    "description": "Images dominées par la brume, le brouillard ou la pluie, créant une ambiance contemplative.",
+    "key_characteristics": ["Brume", "Lumière diffuse", "Profondeur"],
+    "recommended_subjects": ["Forêts", "Lacs", "Montagnes embrumées"],
+    "constraints": { 
+      "black_and_white": true,
+      "requires_landscape": true,
+      "requires_outdoor": true,
+      "requires_no_face": true,
+      "requires_atmosphere": true,
+      "max_contrast": 40
+    },
+    "weights": {
+      "softness": 0.4,
+      "depth_score": 0.3,
+      "contrast": -0.15,
+      "brightness": 0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0.1,
+      "contrast": 10,
+      "highlights": -10,
+      "shadows": 25,
+      "clarity": -5,
+      "saturation": -100
+    },
+    "pro_tips": [
+      "Shootez tôt le matin quand la brume est présente",
+      "Sous-exposez légèrement pour préserver l'ambiance mystérieuse",
+      "Le brouillard agit comme un filtre naturel adoucissant"
+    ],
+    "common_mistakes": [
+      "Augmenter trop la clarté et tuer l'ambiance",
+      "Contraste trop élevé dans des conditions brumeuses",
+      "Oublier de protéger le capteur de l'humidité"
+    ]
+  },
+
+  {
+    "id": "cartier_bresson",
+    "label": "Henri Cartier-Bresson",
+    "category": "street_photography",
+    "difficulty": "advanced",
+    "description": "Photographie de rue noir et blanc centrée sur l'instant décisif et la composition parfaite.",
+    "key_characteristics": ["Instant décisif", "Composition géométrique", "Authenticité"],
+    "recommended_subjects": ["Scènes de rue", "Gens en mouvement"],
+    "constraints": { 
+      "black_and_white": true,
+      "requires_urban": true,
+      "requires_human_presence": true,
+      "requires_candid": true,
+      "min_objects": 2
+    },
+    "weights": {
+      "composition_balance": 0.4,
+      "moment_score": 0.3,
+      "contrast": 0.2,
+      "sharpness": 0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0,
+      "contrast": 30,
+      "highlights": -20,
+      "shadows": 10,
+      "clarity": 20,
+      "saturation": -100
+    },
+    "pro_tips": [
+      "Anticipez l'action pour capturer l'instant décisif",
+      "Utilisez une focale fixe (35mm ou 50mm) pour l'authenticité",
+      "Restez discret et invisible pour capturer des moments naturels"
+    ],
+    "common_mistakes": [
+      "Trop d'éléments perturbateurs dans le cadre",
+      "Manquer le moment clé par hésitation",
+      "Composition négligée au profit de l'action"
+    ]
+  },
+
+  {
+    "id": "street_photography_bw",
+    "label": "Street Photography N&B Moderne",
+    "category": "street_photography",
+    "difficulty": "intermediate",
+    "description": "Photographie de rue brute et énergique, privilégiant l'émotion à la perfection technique.",
+    "key_characteristics": ["Contraste fort", "Grain", "Action"],
+    "recommended_subjects": ["Rue nocturne", "Foules", "Ambiance urbaine"],
+    "constraints": { 
+      "black_and_white": true,
+      "requires_urban": true,
+      "requires_human_presence": true,
+      "min_contrast": 35
+    },
+    "weights": {
+      "contrast": 0.3,
+      "composition_balance": 0.35,
+      "noise": 0.15,
+      "sharpness": 0.2
+    },
+    "lightroom_preset": {
+      "exposure": 0,
+      "contrast": 35,
+      "highlights": -25,
+      "shadows": 0,
+      "clarity": 25,
+      "saturation": -100,
+      "grain_amount": 30
+    },
+    "pro_tips": [
+      "N'ayez pas peur du grain, il ajoute du caractère",
+      "Shootez en haute ISO pour figer l'action",
+      "Le contraste fort renforce l'impact émotionnel"
+    ],
+    "common_mistakes": [
+      "Flou de bougé par manque de vitesse",
+      "Réduction excessive du bruit qui tue le caractère",
+      "Photos trop propres qui manquent d'âme"
+    ]
+  },
+
+  {
+    "id": "urban_gritty_bw",
+    "label": "Urbain Brut N&B",
+    "category": "street_photography",
+    "difficulty": "intermediate",
+    "description": "Style urbain dur, contrasté, mettant en avant la rudesse de la ville.",
+    "key_characteristics": ["Rugosité", "Ombres", "Textures"],
+    "recommended_subjects": ["Façades", "Quartiers industriels"],
+    "constraints": { 
+      "black_and_white": true,
+      "requires_urban": true,
+      "requires_architecture": true,
+      "min_contrast": 40,
+      "min_texture": 30
+    },
+    "weights": {
+      "contrast": 0.35,
+      "texture_score": 0.3,
+      "noise": 0.15,
+      "sharpness": 0.2
+    },
+    "lightroom_preset": {
+      "exposure": -0.2,
+      "contrast": 40,
+      "highlights": -30,
+      "shadows": -20,
+      "clarity": 30,
+      "saturation": -100
+    },
+    "pro_tips": [
+      "Cherchez les surfaces texturées : béton, métal, brique",
+      "Les ombres dures renforcent l'aspect brut",
+      "Privilégiez les angles inhabituels et contre-plongées"
+    ],
+    "common_mistakes": [
+      "Trop lisser les textures avec la réduction de bruit",
+      "Négliger les détails architecturaux",
+      "Composition trop sage pour un style brut"
+    ]
+  },
+
+  {
+    "id": "humanist_photography",
+    "label": "Photographie Humaniste",
+    "category": "street_photography",
+    "difficulty": "beginner",
+    "description": "Photographie centrée sur l'humain, l'émotion et les interactions sociales.",
+    "key_characteristics": ["Émotion", "Narration", "Humanité"],
+    "recommended_subjects": ["Vie quotidienne", "Portraits spontanés"],
+    "constraints": {
+      "requires_human_presence": true,
+      "requires_emotion": true,
+      "allows_face": true
+    },
+    "weights": {
+      "moment_score": 0.4,
+      "composition_balance": 0.3,
+      "brightness": 0.2,
+      "contrast": 0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0.2,
+      "contrast": 20,
+      "highlights": -10,
+      "shadows": 15,
+      "clarity": 10,
+      "vibrance": 10
+    },
+    "pro_tips": [
+      "Connectez avec vos sujets pour capturer des émotions vraies",
+      "La lumière douce flatte les visages et les émotions",
+      "Racontez une histoire, ne faites pas que documenter"
+    ],
+    "common_mistakes": [
+      "Photos qui manquent d'émotion ou de connexion",
+      "Trop se concentrer sur la technique au détriment du moment",
+      "Négliger le contexte qui donne du sens"
+    ]
+  },
+
+  {
+    "id": "steve_mccurry",
+    "label": "Steve McCurry",
+    "category": "documentary_color",
+    "difficulty": "advanced",
+    "description": "Photographie documentaire couleur utilisant des teintes saturées comme élément narratif.",
+    "key_characteristics": ["Couleur vive", "Regard fort", "Narration"],
+    "recommended_subjects": ["Portraits de voyage", "Scènes culturelles"],
+    "constraints": { 
+      "color": true,
+      "requires_human_presence": true,
+      "allows_face": true,
+      "min_saturation": 60,
+      "requires_cultural_context": true
+    },
+    "weights": {
+      "color_harmony": 0.35,
+      "saturation": 0.25,
+      "contrast": 0.2,
+      "sharpness": 0.2
+    },
+    "lightroom_preset": {
+      "exposure": 0,
+      "contrast": 25,
+      "highlights": -15,
+      "shadows": 10,
+      "clarity": 15,
+      "vibrance": 30,
+      "saturation": 10
+    },
+    "pro_tips": [
+      "Les couleurs doivent raconter une histoire, pas juste décorer",
+      "Cherchez les vêtements colorés et les scènes vibrantes",
+      "Le regard direct crée une connexion puissante avec le spectateur"
+    ],
+    "common_mistakes": [
+      "Sursaturer artificiellement les couleurs",
+      "Négliger la composition au profit des couleurs",
+      "Photos qui ressemblent à des cartes postales"
+    ]
+  },
+
+  {
+    "id": "documentary_color",
+    "label": "Documentaire Couleur",
+    "category": "documentary_color",
+    "difficulty": "beginner",
+    "description": "Photographie fidèle à la réalité, équilibrée, sans excès de post-traitement.",
+    "key_characteristics": ["Neutralité", "Réalité", "Équilibre"],
+    "recommended_subjects": ["Scènes de vie", "Reportage"],
+    "constraints": { 
+      "color": true,
+      "max_saturation": 100,
+      "max_contrast": 40,
+      "requires_authenticity": true
+    },
+    "weights": {
+      "color_harmony": 0.3,
+      "contrast": 0.25,
+      "sharpness": 0.25,
+      "saturation": 0.2
+    },
+    "lightroom_preset": {
+      "exposure": 0,
+      "contrast": 20,
+      "highlights": -10,
+      "shadows": 10,
+      "clarity": 10,
+      "vibrance": 10,
+      "saturation": 0
+    },
+    "pro_tips": [
+      "Privilégiez l'authenticité à l'esthétique",
+      "La lumière naturelle est votre meilleure alliée",
+      "Ne manipulez pas les couleurs de façon évidente"
+    ],
+    "common_mistakes": [
+      "Retouches trop visibles qui tuent la crédibilité",
+      "Négliger l'importance du contexte",
+      "Photos plates par excès de neutralité"
+    ]
+  },
+
+  {
+    "id": "everyday_color_life",
+    "label": "Vie Quotidienne en Couleur",
+    "category": "documentary_color",
+    "difficulty": "intermediate",
+    "description": "Élévation du banal au rang d'art par la couleur et la composition.",
+    "key_characteristics": ["Couleur expressive", "Simplicité", "Banal sublimé"],
+    "recommended_subjects": ["Objets du quotidien", "Intérieurs"],
+    "constraints": { 
+      "color": true,
+      "requires_simplicity": true,
+      "max_objects": 8,
+      "requires_indoor_or_studio": false,
+      "allows_pet": true
+    },
+    "weights": {
+      "color_saturation": 0.3,
+      "composition_simplicity": 0.3,
+      "vibrance": 0.25,
+      "sharpness": -0.05
+    },
+    "lightroom_preset": {
+      "exposure": 0.2,
+      "contrast": 15,
+      "highlights": -10,
+      "shadows": 15,
+      "clarity": 5,
+      "vibrance": 25,
+      "saturation": 5
+    },
+    "pro_tips": [
+      "Cherchez la beauté dans les détails du quotidien",
+      "La lumière naturelle révèle les couleurs naturelles",
+      "Composition minimaliste pour mettre en valeur le sujet"
+    ],
+    "common_mistakes": [
+      "Trop d'éléments qui diluent le message",
+      "Couleurs trop saturées qui deviennent artificielles",
+      "Négliger l'importance de la lumière douce"
+    ]
+  },
+
+  {
+    "id": "cinematic_low_key",
+    "label": "Cinématique Low Key",
+    "category": "cinematic",
+    "difficulty": "advanced",
+    "description": "Ambiance sombre inspirée du cinéma, avec ombres profondes et lumière directionnelle.",
+    "key_characteristics": ["Low key", "Ombres", "Atmosphère"],
+    "recommended_subjects": ["Portraits dramatiques", "Scènes nocturnes", "Animaux sombres"],
+    "constraints": {
+      "max_brightness": 120,
+      "min_contrast": 50,
+      "requires_dramatic_light": true,
+      "requires_shadows": true,
+      "allows_pet": true
+    },
+    "weights": {
+      "contrast": 0.4,
+      "brightness": -0.2,
+      "color_harmony": 0.25,
+      "noise": 0.15
+    },
+    "target_values": {
+      "brightness": {"min": 60, "max": 100, "ideal": 80, "unit": "0-255"},
+      "contrast": {"min": 50, "max": 90, "ideal": 70, "unit": "std_dev"},
+      "exposure": {"adjustment": "-0.7 to -1.5 EV", "priority": "high"},
+      "shadows": {"adjustment": "-40 to -60", "priority": "critical"},
+      "highlights": {"adjustment": "-20 to -40", "priority": "high"}
+    },
+    "lightroom_preset": {
+      "exposure": -1.0,
+      "contrast": 40,
+      "highlights": -30,
+      "shadows": -50,
+      "whites": -40,
+      "blacks": -60,
+      "clarity": 15,
+      "vibrance": -5
+    },
+    "pro_tips": [
+      "Utilisez une seule source de lumière directionnelle",
+      "Les ombres sont aussi importantes que les lumières",
+      "Inspirez-vous du cinéma noir et des films de Fincher"
+    ],
+    "common_mistakes": [
+      "Écrêter les noirs et perdre les détails",
+      "Lumière trop diffuse qui casse l'ambiance",
+      "Négliger la direction et la qualité de la lumière"
+    ]
+  },
+
+  {
+    "id": "cinematic_high_key",
+    "label": "Cinématique High Key",
+    "category": "cinematic",
+    "difficulty": "intermediate",
+    "description": "Ambiance lumineuse et aérienne, inspirée du cinéma moderne.",
+    "key_characteristics": ["Lumière douce", "Faible contraste", "Clarté"],
+    "recommended_subjects": ["Portraits", "Scènes optimistes"],
+    "constraints": {
+      "min_brightness": 160,
+      "max_contrast": 30,
+      "requires_soft_light": true,
+      "requires_no_pet": true
+    },
+    "weights": {
+      "brightness": 0.4,
+      "contrast": -0.2,
+      "softness": 0.25,
+      "sharpness": 0.15
+    },
+    "lightroom_preset": {
+      "exposure": 1.2,
+      "contrast": -15,
+      "highlights": 20,
+      "shadows": 60,
+      "clarity": 0,
+      "vibrance": 10
+    },
+    "pro_tips": [
+      "Surexposez volontairement pour créer l'effet aérien",
+      "Lumière diffuse partout, pas d'ombres dures",
+      "Parfait pour les portraits doux et optimistes"
+    ],
+    "common_mistakes": [
+      "Cramer les hautes lumières sans détails",
+      "Contraste résiduel qui casse l'ambiance",
+      "Négliger la qualité de la lumière diffuse"
+    ]
+  },
+
+  {
+    "id": "moody_color",
+    "label": "Couleur Moody",
+    "category": "cinematic",
+    "difficulty": "intermediate",
+    "description": "Couleurs désaturées et contrastes locaux pour une ambiance émotionnelle.",
+    "key_characteristics": ["Ambiance", "Couleurs sourdes", "Émotion"],
+    "recommended_subjects": ["Portraits introspectifs", "Scènes urbaines"],
+    "constraints": {
+      "color": true,
+      "max_saturation": 80,
+      "min_contrast": 30,
+      "requires_mood": true,
+      "requires_no_pet": true
+    },
+    "weights": {
+      "color_desaturation": 0.25,
+      "local_contrast": 0.25,
+      "contrast": 0.3,
+      "brightness": -0.1
+    },
+    "lightroom_preset": {
+      "exposure": -0.3,
+      "contrast": 30,
+      "highlights": -20,
+      "shadows": -10,
+      "clarity": 10,
+      "vibrance": -15,
+      "saturation": -10
+    },
+    "pro_tips": [
+      "Désaturez légèrement pour créer l'ambiance",
+      "Le contraste local renforce l'émotion",
+      "Pensez aux palettes de films de Denis Villeneuve"
+    ],
+    "common_mistakes": [
+      "Trop désaturer et obtenir un quasi N&B",
+      "Négliger la balance des couleurs",
+      "Ambiance forcée par des présets génériques"
+    ]
+  },
+
+  {
+    "id": "film_look_analog",
+    "label": "Look Film Analogique",
+    "category": "cinematic",
+    "difficulty": "beginner",
+    "description": "Rendu inspiré de la photographie argentique avec grain et contraste modéré.",
+    "key_characteristics": ["Grain", "Teintes film", "Nostalgie"],
+    "recommended_subjects": ["Portraits", "Voyage"],
+    "constraints": {
+      "requires_grain": true,
+      "max_sharpness": 100,
+      "requires_vintage_feel": true
+    },
+    "weights": {
+      "noise": 0.3,
+      "contrast": 0.25,
+      "color_shift": 0.25,
+      "sharpness": -0.2
+    },
+    "lightroom_preset": {
+      "exposure": 0.1,
+      "contrast": 20,
+      "highlights": -15,
+      "shadows": 5,
+      "clarity": -5,
+      "vibrance": 5,
+      "grain_amount": 25
+    },
+    "pro_tips": [
+      "Le grain doit être subtil, pas agressif",
+      "Étudiez les rendus des films classiques (Portra, Tri-X)",
+      "La courbe tonale est essentielle pour le look film"
+    ],
+    "common_mistakes": [
+      "Grain trop fort qui cache les détails",
+      "Couleurs trop vives pour un look vintage",
+      "Netteté numérique excessive"
+    ]
+  },
+
+  {
+    "id": "soft_light_portrait",
+    "label": "Portrait en Lumière Douce",
+    "category": "portrait",
+    "difficulty": "beginner",
+    "description": "Portrait flatteur avec transitions douces et ombres atténuées.",
+    "key_characteristics": ["Douceur", "Peau naturelle", "Lumière large"],
+    "recommended_subjects": ["Portraits rapprochés", "Enfants"],
+    "constraints": {
+      "requires_face": true,
+      "min_faces": 1,
+      "requires_soft_light": true,
+      "max_contrast": 25
+    },
+    "weights": {
+      "softness": 0.4,
+      "brightness": 0.25,
+      "skin_tone_score": 0.25,
+      "noise": -0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0.3,
+      "contrast": 10,
+      "highlights": -10,
+      "shadows": 30,
+      "clarity": -10,
+      "vibrance": 10
+    },
+    "pro_tips": [
+      "Utilisez une grande source de lumière diffuse",
+      "La clarté négative adoucit la peau naturellement",
+      "Évitez la lumière dure qui crée des ombres marquées"
+    ],
+    "common_mistakes": [
+      "Trop de clarté négative qui floute l'image",
+      "Lumière trop dure avec des ombres disgracieuses",
+      "Sur-retouche de la peau qui devient plastique"
+    ]
+  },
+
+  {
+    "id": "dramatic_portrait",
+    "label": "Portrait Dramatique",
+    "category": "portrait",
+    "difficulty": "advanced",
+    "description": "Portraits à fort contraste inspirés du clair-obscur.",
+    "key_characteristics": ["Ombres fortes", "Contraste", "Expression"],
+    "recommended_subjects": ["Portraits artistiques"],
+    "constraints": { 
+      "color": true,
+      "requires_face": true,
+      "min_faces": 1,
+      "min_contrast": 45,
+      "requires_dramatic_light": true,
+      "requires_shadows": true
+    },
+    "weights": {
+      "contrast": 0.4,
+      "light_directionality": 0.3,
+      "sharpness": 0.2,
+      "noise": 0.1
+    },
+    "lightroom_preset": {
+      "exposure": -0.2,
+      "contrast": 45,
+      "highlights": -25,
+      "shadows": -40,
+      "clarity": 20,
+      "vibrance": 5
+    },
+    "pro_tips": [
+      "Une seule source de lumière latérale pour le clair-obscur",
+      "Les ombres sculptent le visage, ne les combattez pas",
+      "Expression du modèle cruciale pour l'impact dramatique"
+    ],
+    "common_mistakes": [
+      "Lumière trop diffuse qui tue le drame",
+      "Déboucher trop les ombres",
+      "Négliger la direction de la lumière"
+    ]
+  },
+
+  {
+    "id": "classic_portrait",
+    "label": "Portrait Classique",
+    "category": "portrait",
+    "difficulty": "beginner",
+    "description": "Portrait équilibré et intemporel, sans effets marqués.",
+    "key_characteristics": ["Équilibre", "Naturel", "Simplicité"],
+    "recommended_subjects": ["Portraits studio", "Famille"],
+    "constraints": { 
+      "color": true,
+      "requires_face": true,
+      "min_faces": 1,
+      "max_contrast": 40
+    },
+    "weights": {
+      "composition_balance": 0.35,
+      "brightness": 0.3,
+      "sharpness": 0.2,
+      "contrast": 0.15
+    },
+    "lightroom_preset": {
+      "exposure": 0.2,
+      "contrast": 20,
+      "highlights": -10,
+      "shadows": 15,
+      "clarity": 10,
+      "vibrance": 10
+    },
+    "pro_tips": [
+      "Lumière à 45° pour un modelé naturel du visage",
+      "Retouche subtile, l'objectif est la naturalité",
+      "Fond neutre pour mettre en valeur le sujet"
+    ],
+    "common_mistakes": [
+      "Lumière trop plate qui manque de relief",
+      "Fond chargé qui distrait du sujet",
+      "Retouche excessive qui dénature le visage"
+    ]
+  },
+
+  {
+    "id": "high_key_fashion",
+    "label": "High Key Mode",
+    "category": "portrait_fashion",
+    "difficulty": "advanced",
+    "description": "Portraits très lumineux avec ombres quasi absentes.",
+    "key_characteristics": ["Lumière intense", "Fond clair", "Modernité"],
+    "recommended_subjects": ["Mode", "Beauté"],
+    "constraints": {
+      "requires_face": true,
+      "min_faces": 1,
+      "min_brightness": 180,
+      "max_contrast": 30,
+      "requires_soft_light": true
+    },
+    "weights": {
+      "brightness": 0.4,
+      "contrast": -0.2,
+      "shadow_detail": -0.3,
+      "sharpness": 0.15
+    },
+    "target_values": {
+      "brightness": {"min": 180, "max": 220, "ideal": 200, "unit": "0-255"},
+      "exposure": {"adjustment": "+1.5 to +2.0 EV", "priority": "high"},
+      "shadows": {"adjustment": "+80 to +100", "priority": "critical"}
+    },
+    "lightroom_preset": {
+      "exposure": 1.75,
+      "contrast": -25,
+      "highlights": 30,
+      "shadows": 90,
+      "whites": 40,
+      "blacks": 50,
+      "clarity": 0,
+      "vibrance": 15
+    },
+    "pro_tips": [
+      "Multipliez les sources de lumière pour éliminer les ombres",
+      "Fond blanc surexposé pour effet high key parfait",
+      "Attention à ne pas cramer les hautes lumières sur la peau"
+    ],
+    "common_mistakes": [
+      "Perte totale de détails dans les hautes lumières",
+      "Ombres résiduelles qui cassent l'effet",
+      "Exposition insuffisante qui donne un effet plat"
+    ]
+  },
+
+  {
+    "id": "editorial_portrait",
+    "label": "Portrait Éditorial",
+    "category": "portrait",
+    "difficulty": "intermediate",
+    "description": "Portrait narratif utilisé en presse et magazines.",
+    "key_characteristics": ["Narration", "Contexte", "Personnalité"],
+    "recommended_subjects": ["Artistes", "Professionnels"],
+    "constraints": { 
+      "color": true,
+      "requires_face": true,
+      "min_faces": 1,
+      "requires_context": true
+    },
+    "weights": {
+      "composition_balance": 0.3,
+      "moment_score": 0.25,
+      "contrast": 0.25,
+      "sharpness": 0.2
+    },
+    "lightroom_preset": {
+      "exposure": 0.1,
+      "contrast": 25,
+      "highlights": -15,
+      "shadows": 10,
+      "clarity": 15,
+      "vibrance": 15
+    },
+    "pro_tips": [
+      "Le contexte et l'environnement racontent autant que le visage",
+      "Laissez de l'espace pour le texte si publication magazine",
+      "Expression naturelle plus importante que pose parfaite"
+    ],
+    "common_mistakes": [
+      "Trop centré sur le visage, pas assez de contexte",
+      "Environnement distrayant qui noie le sujet",
+      "Lumière trop artificielle pour un style éditorial"
+    ]
+  },
+
+  {
+    "id": "geometric_minimalism",
+    "label": "Minimalisme Géométrique",
+    "category": "minimalism",
+    "difficulty": "intermediate",
+    "description": "Photographie axée sur les formes, lignes et structures.",
+    "key_characteristics": ["Formes", "Lignes", "Graphisme"],
+    "recommended_subjects": ["Architecture", "Escaliers"],
+    "constraints": {
+      "requires_architecture": true,
+      "requires_no_face": true,
+      "max_objects": 3,
+      "requires_simplicity": true,
+      "min_geometry": 0.4
+    },
+    "weights": {
+      "geometry_score": 0.4,
+      "composition_simplicity": 0.35,
+      "color_complexity": -0.2
+    },
+    "lightroom_preset": {
+      "exposure": 0.2,
+      "contrast": 20,
+      "highlights": -15,
+      "shadows": 10,
+      "clarity": 20,
+      "vibrance": 10
+    },
+    "pro_tips": [
+      "Cherchez les lignes directrices et les symétries",
+      "Les formes géométriques pures sont plus impactantes",
+      "Utilisez un grand angle pour accentuer les perspectives"
+    ],
+    "common_mistakes": [
+      "Composition décentrée qui casse la symétrie",
+      "Trop d'éléments perturbateurs",
+      "Négliger l'importance de la lumière sur les formes"
+    ]
+  },
+
+  {
+    "id": "zen_composition",
+    "label": "Composition Zen",
+    "category": "minimalism",
+    "difficulty": "beginner",
+    "description": "Photographies apaisantes basées sur l'équilibre et la répétition.",
+    "key_characteristics": ["Équilibre", "Calme", "Harmonie"],
+    "recommended_subjects": ["Jardins", "Objets simples"],
+    "constraints": {
+      "requires_simplicity": true,
+      "requires_no_face": true,
+      "max_objects": 5,
+      "max_contrast": 40,
+      "requires_balance": true
+    },
+    "weights": {
+      "composition_balance": 0.45,
+      "color_harmony": 0.3,
+      "visual_noise": -0.2
+    },
+    "lightroom_preset": {
+      "exposure": 0.3,
+      "contrast": 10,
+      "highlights": -10,
+      "shadows": 20,
+      "clarity": 5,
+      "vibrance": 15
+    },
+    "pro_tips": [
+      "La symétrie et l'équilibre créent le calme visuel",
+      "Privilégiez les couleurs douces et harmonieuses",
+      "L'espace négatif est essentiel pour la sérénité"
+    ],
+    "common_mistakes": [
+      "Composition déséquilibrée qui crée de la tension",
+      "Couleurs trop vives qui perturbent la zen attitude",
+      "Trop de détails qui créent du bruit visuel"
+    ]
+  },
+
+  {
+    "id": "negative_space_photography",
+    "label": "Photographie à Espace Négatif",
+    "category": "minimalism",
+    "difficulty": "beginner",
+    "description": "Utilisation volontaire du vide pour renforcer le sujet.",
+    "key_characteristics": ["Vide", "Respiration", "Simplicité"],
+    "recommended_subjects": ["Sujets isolés"],
+    "constraints": {
+      "requires_simplicity": true,
+      "max_objects": 2,
+      "requires_negative_space": true,
+      "min_empty_space": 0.6
+    },
+    "weights": {
+      "composition_simplicity": 0.5,
+      "subject_isolation": 0.3,
+      "contrast": -0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0.4,
+      "contrast": 15,
+      "highlights": -10,
+      "shadows": 15,
+      "clarity": 10,
+      "vibrance": 10
+    },
+    "pro_tips": [
+      "Le vide doit représenter au moins 60% de l'image",
+      "Un seul point d'intérêt fort suffit",
+      "Placez le sujet selon la règle des tiers"
+    ],
+    "common_mistakes": [
+      "Pas assez d'espace négatif autour du sujet",
+      "Sujet trop petit qui se perd dans le vide",
+      "Espace négatif perturbé par des éléments parasites"
+    ]
+  },
+
+  {
+    "id": "wildlife_action",
+    "label": "Wildlife Action",
+    "category": "wildlife",
+    "difficulty": "advanced",
+    "description": "Photographie animalière capturant l'action et le comportement naturel.",
+    "key_characteristics": ["Action figée", "Netteté extrême", "Isolement du sujet"],
+    "recommended_subjects": ["Oiseaux en vol", "Animaux en mouvement", "Prédation"],
+    "constraints": {
+      "requires_outdoor": true,
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "min_sharpness": 200,
+      "max_objects": 3,
+      "requires_wildlife": true
+    },
+    "weights": {
+      "sharpness": 0.4,
+      "subject_isolation": 0.3,
+      "moment_score": 0.2,
+      "composition_balance": 0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0,
+      "contrast": 25,
+      "highlights": -20,
+      "shadows": 20,
+      "clarity": 25,
+      "vibrance": 20,
+      "saturation": 5
+    },
+    "target_values": {
+      "sharpness": {"min": 200, "max": 500, "ideal": 350, "unit": "variance"},
+      "exposure": {"adjustment": "0 to +0.3 EV", "priority": "high"}
+    },
+    "pro_tips": [
+      "Vitesse d'obturation minimale : 1/1000s pour figer l'action",
+      "Utilisez la rafale et l'autofocus continu (AF-C)",
+      "Anticipez le comportement animal plutôt que de réagir",
+      "Zone de netteté critique : les yeux de l'animal"
+    ],
+    "common_mistakes": [
+      "Vitesse trop lente qui crée du flou de mouvement",
+      "Arrière-plan distrayant non flou",
+      "Cadrage trop serré qui coupe l'action",
+      "Négliger la direction du regard de l'animal"
+    ]
+  },
+
+  {
+    "id": "wildlife_portrait",
+    "label": "Portrait Animalier",
+    "category": "wildlife",
+    "difficulty": "intermediate",
+    "description": "Portraits intimes d'animaux sauvages avec connexion émotionnelle.",
+    "key_characteristics": ["Regard captivant", "Bokeh", "Détails"],
+    "recommended_subjects": ["Mammifères", "Oiseaux posés", "Gros plans"],
+    "constraints": {
+      "requires_outdoor": true,
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "min_sharpness": 150,
+      "max_objects": 1,
+      "requires_wildlife": true
+    },
+    "weights": {
+      "sharpness": 0.35,
+      "subject_isolation": 0.35,
+      "composition_balance": 0.2,
+      "softness": 0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0.2,
+      "contrast": 20,
+      "highlights": -15,
+      "shadows": 25,
+      "clarity": 20,
+      "vibrance": 25,
+      "saturation": 5
+    },
+    "pro_tips": [
+      "Le regard de l'animal doit être net et accrocheur",
+      "Grande ouverture (f/2.8-f/5.6) pour isoler le sujet",
+      "Lumière douce du matin ou soir pour modelé naturel",
+      "Respectez toujours la distance de sécurité"
+    ],
+    "common_mistakes": [
+      "Yeux flous ou sans lumière (catch light)",
+      "Bokeh trop agressif qui distrait",
+      "Cadrage centré systématique",
+      "Post-traitement excessif qui dénature"
+    ]
+  },
+
+  {
+    "id": "macro_nature",
+    "label": "Macro Nature",
+    "category": "macro",
+    "difficulty": "advanced",
+    "description": "Monde miniature révélé : insectes, fleurs, textures naturelles.",
+    "key_characteristics": ["Détails extrêmes", "Faible profondeur", "Textures"],
+    "recommended_subjects": ["Insectes", "Fleurs", "Gouttes d'eau"],
+    "constraints": {
+      "requires_outdoor": true,
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "requires_no_landscape": true,
+      "min_sharpness": 180,
+      "max_objects": 2,
+      "requires_macro": true
+    },
+    "weights": {
+      "sharpness": 0.35,
+      "texture_score": 0.3,
+      "softness": 0.2,
+      "color_harmony": 0.15
+    },
+    "lightroom_preset": {
+      "exposure": 0.3,
+      "contrast": 15,
+      "highlights": -10,
+      "shadows": 30,
+      "clarity": 15,
+      "vibrance": 30,
+      "saturation": 10
+    },
+    "target_values": {
+      "sharpness": {"min": 180, "max": 450, "ideal": 300, "unit": "variance"}
+    },
+    "pro_tips": [
+      "Utilisez un trépied et un déclencheur à distance",
+      "Focus stacking pour augmenter la profondeur de champ",
+      "Lumière diffuse naturelle ou flash macro dédié",
+      "Fermez l'ouverture (f/11-f/16) pour plus de netteté"
+    ],
+    "common_mistakes": [
+      "Profondeur de champ trop faible, sujet incomplet",
+      "Flou de bougé invisible à l'œil nu mais critique en macro",
+      "Éclairage dur qui crée des ombres disgracieuses",
+      "Arrière-plan trop chargé qui distrait"
+    ]
+  },
+
+  {
+    "id": "product_commercial",
+    "label": "Produit Commercial",
+    "category": "product",
+    "difficulty": "intermediate",
+    "description": "Photographie de produit professionnelle pour e-commerce et publicité.",
+    "key_characteristics": ["Fond neutre", "Éclairage uniforme", "Détails précis"],
+    "recommended_subjects": ["Produits e-commerce", "Packshot"],
+    "constraints": {
+      "requires_indoor_or_studio": true,
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "requires_no_pet": true,
+      "min_sharpness": 200,
+      "max_objects": 3,
+      "min_brightness": 180,
+      "requires_clean_background": true
+    },
+    "weights": {
+      "sharpness": 0.4,
+      "brightness": 0.3,
+      "composition_simplicity": 0.2,
+      "noise": -0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0.5,
+      "contrast": 10,
+      "highlights": -10,
+      "shadows": 40,
+      "clarity": 15,
+      "vibrance": 20,
+      "saturation": 5
+    },
+    "target_values": {
+      "brightness": {"min": 180, "max": 220, "ideal": 200, "unit": "0-255"},
+      "sharpness": {"min": 200, "max": 400, "ideal": 300, "unit": "variance"}
+    },
+    "pro_tips": [
+      "Fond blanc pur (255,255,255) pour e-commerce",
+      "Éclairage multi-sources pour éliminer les ombres",
+      "Focus stacking si nécessaire pour netteté totale",
+      "Angle de 45° classique pour la plupart des produits"
+    ],
+    "common_mistakes": [
+      "Fond gris au lieu de blanc pur",
+      "Reflets indésirables sur surfaces brillantes",
+      "Ombres portées trop marquées",
+      "Couleurs inexactes qui trompent le client"
+    ]
+  },
+
+  {
+    "id": "product_lifestyle",
+    "label": "Produit Lifestyle",
+    "category": "product",
+    "difficulty": "intermediate",
+    "description": "Produit en situation réelle, contexte lifestyle et storytelling.",
+    "key_characteristics": ["Contexte naturel", "Ambiance", "Usage suggéré"],
+    "recommended_subjects": ["Produits lifestyle", "Flatlay", "Scènes de vie"],
+    "constraints": {
+      "requires_no_face": true,
+      "requires_no_pet": true,
+      "max_objects": 8,
+      "requires_context": true,
+      "min_composition_balance": 0.5
+    },
+    "weights": {
+      "composition_balance": 0.35,
+      "color_harmony": 0.3,
+      "sharpness": 0.2,
+      "brightness": 0.15
+    },
+    "lightroom_preset": {
+      "exposure": 0.3,
+      "contrast": 15,
+      "highlights": -15,
+      "shadows": 25,
+      "clarity": 10,
+      "vibrance": 25,
+      "saturation": 5
+    },
+    "pro_tips": [
+      "Le produit reste le héros, le contexte supporte",
+      "Lumière naturelle pour authenticité",
+      "Props qui racontent une histoire cohérente",
+      "Palette de couleurs harmonieuse et intentionnelle"
+    ],
+    "common_mistakes": [
+      "Contexte trop chargé qui noie le produit",
+      "Props incohérents avec l'univers de marque",
+      "Lumière artificielle trop visible",
+      "Composition déséquilibrée"
+    ]
+  },
+
+  {
+    "id": "food_editorial",
+    "label": "Food Éditorial",
+    "category": "food",
+    "difficulty": "advanced",
+    "description": "Photographie culinaire artistique pour magazines et cookbooks.",
+    "key_characteristics": ["Styling élaboré", "Lumière naturelle", "Ambiance"],
+    "recommended_subjects": ["Plats préparés", "Ingrédients", "Tablescape"],
+    "constraints": {
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "requires_no_pet": true,
+      "min_objects": 1,
+      "max_objects": 12,
+      "requires_indoor_or_studio": true
+    },
+    "weights": {
+      "color_harmony": 0.35,
+      "composition_balance": 0.3,
+      "brightness": 0.2,
+      "texture_score": 0.15
+    },
+    "lightroom_preset": {
+      "exposure": 0.2,
+      "contrast": 15,
+      "highlights": -20,
+      "shadows": 30,
+      "clarity": 10,
+      "vibrance": 25,
+      "saturation": 10
+    },
+    "pro_tips": [
+      "Lumière latérale diffuse (fenêtre nord idéale)",
+      "Angle 45° ou overhead selon le plat",
+      "Styling subtil : moins c'est plus",
+      "Shootez rapidement, les aliments se dégradent"
+    ],
+    "common_mistakes": [
+      "Flash direct qui tue la texture et l'ambiance",
+      "Trop de props qui distraient du plat",
+      "Nourriture qui ne paraît pas fraîche",
+      "Palette de couleurs discordante"
+    ]
+  },
+
+  {
+    "id": "food_commercial",
+    "label": "Food Commercial",
+    "category": "food",
+    "difficulty": "intermediate",
+    "description": "Photographie culinaire publicitaire, appétissante et vibrante.",
+    "key_characteristics": ["Couleurs vives", "Appétence", "Éclairage contrôlé"],
+    "recommended_subjects": ["Fast food", "Publicité", "Menus"],
+    "constraints": {
+      "color": true,
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "requires_no_pet": true,
+      "min_saturation": 70,
+      "min_sharpness": 150
+    },
+    "weights": {
+      "saturation": 0.35,
+      "sharpness": 0.3,
+      "brightness": 0.2,
+      "color_harmony": 0.15
+    },
+    "lightroom_preset": {
+      "exposure": 0.3,
+      "contrast": 25,
+      "highlights": -15,
+      "shadows": 20,
+      "clarity": 20,
+      "vibrance": 40,
+      "saturation": 15
+    },
+    "pro_tips": [
+      "Couleurs saturées pour déclencher l'appétit",
+      "Éclairage multi-sources pour contrôle total",
+      "Retouche poussée acceptée (food styling)",
+      "Angle frontal pour burgers/sandwichs"
+    ],
+    "common_mistakes": [
+      "Couleurs ternes qui n'attirent pas",
+      "Lumière trop douce pour du commercial",
+      "Composition plate sans dynamisme",
+      "Négliger les détails (condensation, brillance)"
+    ]
+  },
+
+  {
+    "id": "architecture_exterior",
+    "label": "Architecture Extérieure",
+    "category": "architecture",
+    "difficulty": "intermediate",
+    "description": "Photographie architecturale extérieure, lignes et perspectives.",
+    "key_characteristics": ["Lignes droites", "Perspective", "Symétrie"],
+    "recommended_subjects": ["Bâtiments", "Façades", "Monuments"],
+    "constraints": {
+      "requires_outdoor": true,
+      "requires_architecture": true,
+      "requires_no_face": true,
+      "requires_no_human": true,
+      "min_geometry": 0.5,
+      "min_sharpness": 150
+    },
+    "weights": {
+      "geometry_score": 0.4,
+      "sharpness": 0.3,
+      "composition_balance": 0.2,
+      "contrast": 0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0,
+      "contrast": 25,
+      "highlights": -25,
+      "shadows": 15,
+      "clarity": 20,
+      "vibrance": 15,
+      "saturation": 5
+    },
+    "pro_tips": [
+      "Corrigez les perspectives avec tilt-shift ou en post",
+      "Heure bleue pour lumière magique",
+      "Lignes verticales DOIVENT être droites",
+      "Évitez distorsions grand angle excessives"
+    ],
+    "common_mistakes": [
+      "Lignes convergentes non corrigées",
+      "Horizon penché",
+      "Lumière plate de midi",
+      "Éléments parasites (voitures, poubelles)"
+    ]
+  },
+
+  {
+    "id": "architecture_interior",
+    "label": "Architecture Intérieure",
+    "category": "architecture",
+    "difficulty": "advanced",
+    "description": "Espaces intérieurs, design et ambiance.",
+    "key_characteristics": ["Éclairage mixte", "Perspective", "Ambiance"],
+    "recommended_subjects": ["Intérieurs", "Hôtels", "Restaurants"],
+    "constraints": {
+      "requires_indoor_or_studio": true,
+      "requires_no_face": true,
+      "requires_no_human": true,
+      "min_brightness": 120,
+      "min_geometry": 0.4
+    },
+    "weights": {
+      "geometry_score": 0.35,
+      "brightness": 0.3,
+      "color_harmony": 0.2,
+      "composition_balance": 0.15
+    },
+    "lightroom_preset": {
+      "exposure": 0.3,
+      "contrast": 15,
+      "highlights": -30,
+      "shadows": 40,
+      "clarity": 10,
+      "vibrance": 20,
+      "saturation": 5
+    },
+    "target_values": {
+      "brightness": {"min": 120, "max": 180, "ideal": 150, "unit": "0-255"}
+    },
+    "pro_tips": [
+      "Bracketing HDR souvent nécessaire",
+      "Mélangez lumière naturelle et artificielle",
+      "Grand angle mais pas ultra (16-24mm)",
+      "Correction perspective critique"
+    ],
+    "common_mistakes": [
+      "Fenêtres cramées sans HDR",
+      "Balance des blancs incorrecte (lumières mixtes)",
+      "Ultra grand angle qui déforme",
+      "Reflets dans miroirs/vitres"
+    ]
+  },
+
+  {
+    "id": "long_exposure_creative",
+    "label": "Pose Longue Créative",
+    "category": "creative",
+    "difficulty": "advanced",
+    "description": "Poses longues artistiques : light painting, filés, trails.",
+    "key_characteristics": ["Mouvement", "Créativité", "Technique"],
+    "recommended_subjects": ["Light painting", "Voitures en filé", "Eau lisse"],
+    "constraints": {
+      "requires_outdoor": true,
+      "requires_no_face": true,
+      "min_exposure_time": 1.0,
+      "requires_motion_blur": true
+    },
+    "weights": {
+      "motion_blur_score": 0.4,
+      "composition_balance": 0.3,
+      "color_harmony": 0.2,
+      "contrast": 0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0,
+      "contrast": 30,
+      "highlights": -20,
+      "shadows": 10,
+      "clarity": 15,
+      "vibrance": 25,
+      "saturation": 10
+    },
+    "pro_tips": [
+      "Trépied obligatoire pour netteté du cadre",
+      "Filtres ND en plein jour pour poses longues",
+      "Mode Bulb pour expositions > 30s",
+      "Télécommande pour éviter vibrations"
+    ],
+    "common_mistakes": [
+      "Vibrations qui ruinent la netteté du cadre",
+      "Surexposition par manque de filtre ND",
+      "Mouvement incohérent ou aléatoire",
+      "Négliger la composition au profit de l'effet"
+    ]
+  },
+
+  {
+    "id": "astrophotography",
+    "label": "Astrophotographie",
+    "category": "astro",
+    "difficulty": "expert",
+    "description": "Ciel nocturne, voie lactée, étoiles et astres.",
+    "key_characteristics": ["Ciel étoilé", "Faible lumière", "Netteté"],
+    "recommended_subjects": ["Voie lactée", "Étoiles", "Lune"],
+    "constraints": {
+      "requires_outdoor": true,
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "max_brightness": 80,
+      "requires_night": true,
+      "min_sharpness": 100
+    },
+    "weights": {
+      "sharpness": 0.35,
+      "noise": 0.3,
+      "contrast": 0.2,
+      "composition_balance": 0.15
+    },
+    "lightroom_preset": {
+      "exposure": 0.5,
+      "contrast": 30,
+      "highlights": -20,
+      "shadows": 40,
+      "clarity": 20,
+      "vibrance": 30,
+      "saturation": 10
+    },
+    "target_values": {
+      "brightness": {"min": 40, "max": 80, "ideal": 60, "unit": "0-255"}
+    },
+    "pro_tips": [
+      "Règle 500 : 500/focale = temps d'expo max sans filé",
+      "ISO élevé nécessaire (3200-6400)",
+      "Grande ouverture obligatoire (f/1.4-f/2.8)",
+      "Focus manuel à l'infini (testez avant la nuit)"
+    ],
+    "common_mistakes": [
+      "Étoiles en filé par exposition trop longue",
+      "Mise au point ratée sur les étoiles",
+      "Pollution lumineuse non anticipée",
+      "Réduction de bruit excessive qui floute"
+    ]
+  },
+
+  {
+    "id": "pet_portrait_indoor",
+    "label": "Portrait Animalier Intérieur",
+    "category": "pet_photography",
+    "difficulty": "beginner",
+    "description": "Portraits d'animaux domestiques en intérieur, naturels et expressifs.",
+    "key_characteristics": ["Regard captivant", "Lumière naturelle", "Expression"],
+    "recommended_subjects": ["Chats", "Chiens", "Animaux domestiques"],
+    "constraints": {
+      "requires_indoor_or_studio": true,
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "requires_pet": true,
+      "max_objects": 2,
+      "allows_low_light": true
+    },
+    "weights": {
+      "sharpness": 0.35,
+      "composition_balance": 0.3,
+      "brightness": 0.2,
+      "color_harmony": 0.15
+    },
+    "lightroom_preset": {
+      "exposure": 0.3,
+      "contrast": 20,
+      "highlights": -15,
+      "shadows": 30,
+      "clarity": 15,
+      "vibrance": 20,
+      "saturation": 5
+    },
+    "target_values": {
+      "brightness": {"min": 100, "max": 160, "ideal": 130, "unit": "0-255"},
+      "sharpness": {"min": 100, "max": 300, "ideal": 180, "unit": "variance"}
+    },
+    "pro_tips": [
+      "Les yeux doivent être nets avec un catchlight (reflet)",
+      "Mettez-vous au niveau de l'animal pour un regard direct",
+      "Lumière de fenêtre indirecte idéale pour la douceur",
+      "Soyez patient, captez l'expression naturelle"
+    ],
+    "common_mistakes": [
+      "Flash direct qui fait des yeux rouges/verts",
+      "Point de vue en plongée (trop haut)",
+      "Arrière-plan encombré qui distrait",
+      "Yeux flous (priorité absolue : les yeux nets !)"
+    ]
+  },
+
+  {
+    "id": "pet_lifestyle",
+    "label": "Pet Lifestyle",
+    "category": "pet_photography",
+    "difficulty": "beginner",
+    "description": "Animaux dans leur quotidien, scènes de vie authentiques.",
+    "key_characteristics": ["Naturel", "Contexte", "Moment"],
+    "recommended_subjects": ["Chats jouant", "Chiens en balade", "Scènes du quotidien"],
+    "constraints": {
+      "requires_pet": true,
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "max_objects": 5,
+      "allows_indoor": true,
+      "allows_outdoor": true
+    },
+    "weights": {
+      "moment_score": 0.35,
+      "composition_balance": 0.3,
+      "sharpness": 0.2,
+      "brightness": 0.15
+    },
+    "lightroom_preset": {
+      "exposure": 0.2,
+      "contrast": 15,
+      "highlights": -10,
+      "shadows": 25,
+      "clarity": 10,
+      "vibrance": 20,
+      "saturation": 5
+    },
+    "pro_tips": [
+      "Capturez les comportements naturels sans forcer",
+      "Utilisez la rafale pour saisir l'action",
+      "Le contexte raconte l'histoire (jouets, panier, environnement)",
+      "Anticipez les mouvements plutôt que de réagir"
+    ],
+    "common_mistakes": [
+      "Photos posées qui manquent de naturel",
+      "Vitesse trop lente = flou de mouvement",
+      "Trop de distractions dans le cadre",
+      "Oublier de raconter une histoire"
+    ]
+  },
+
+  {
+    "id": "pet_dramatic_bw",
+    "label": "Portrait Animalier N&B Dramatique",
+    "category": "pet_photography",
+    "difficulty": "intermediate",
+    "description": "Portraits d'animaux en noir et blanc, dramatiques et artistiques.",
+    "key_characteristics": ["Contraste fort", "Noir et blanc", "Émotion"],
+    "recommended_subjects": ["Chats noirs", "Chiens à poil long", "Portraits expressifs"],
+    "constraints": {
+      "black_and_white": true,
+      "requires_pet": true,
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "min_contrast": 40,
+      "max_objects": 1
+    },
+    "weights": {
+      "contrast": 0.4,
+      "sharpness": 0.3,
+      "texture_score": 0.2,
+      "composition_balance": 0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0,
+      "contrast": 40,
+      "highlights": -25,
+      "shadows": -15,
+      "clarity": 25,
+      "vibrance": 0,
+      "saturation": -100
+    },
+    "pro_tips": [
+      "La texture du pelage devient un élément artistique majeur",
+      "Lumière latérale pour sculpter les formes",
+      "Le noir et blanc révèle l'expression pure",
+      "Parfait pour les animaux à pelage sombre"
+    ],
+    "common_mistakes": [
+      "Perte de détails dans les pelages sombres",
+      "Contraste trop faible = image plate",
+      "Négliger la texture du pelage",
+      "Conversion N&B sans réfléchir aux tons"
+    ]
+  },
+
+  {
+    "id": "pet_action_freeze",
+    "label": "Pet Action Figée",
+    "category": "pet_photography",
+    "difficulty": "intermediate",
+    "description": "Action figée d'animaux en mouvement, énergie et dynamisme.",
+    "key_characteristics": ["Vitesse élevée", "Action", "Netteté"],
+    "recommended_subjects": ["Chien sautant", "Chat bondissant", "Courses"],
+    "constraints": {
+      "requires_pet": true,
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "min_sharpness": 180,
+      "requires_outdoor": true
+    },
+    "weights": {
+      "sharpness": 0.45,
+      "moment_score": 0.3,
+      "composition_balance": 0.15,
+      "brightness": 0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0.2,
+      "contrast": 25,
+      "highlights": -20,
+      "shadows": 20,
+      "clarity": 25,
+      "vibrance": 25,
+      "saturation": 10
+    },
+    "target_values": {
+      "sharpness": {"min": 180, "max": 400, "ideal": 280, "unit": "variance"}
+    },
+    "pro_tips": [
+      "Vitesse minimum 1/1000s pour figer l'action",
+      "Mode rafale + AF continu obligatoire",
+      "Anticipez la trajectoire pour le cadrage",
+      "Lumière naturelle abondante pour ISO bas"
+    ],
+    "common_mistakes": [
+      "Vitesse trop lente = flou de mouvement",
+      "AF qui accroche l'arrière-plan",
+      "Cadrage trop serré qui coupe l'action",
+      "ISO élevé par manque de lumière"
+    ]
+  },
+
+  {
+    "id": "pet_close_up_detail",
+    "label": "Détails Animaliers (Macro Pet)",
+    "category": "pet_photography",
+    "difficulty": "intermediate",
+    "description": "Gros plans sur détails : yeux, truffe, pattes, pelage.",
+    "key_characteristics": ["Détails extrêmes", "Texture", "Intimité"],
+    "recommended_subjects": ["Yeux", "Truffe", "Pattes", "Pelage"],
+    "constraints": {
+      "requires_pet": true,
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "min_sharpness": 200,
+      "max_objects": 1,
+      "requires_macro_like": true
+    },
+    "weights": {
+      "sharpness": 0.4,
+      "texture_score": 0.35,
+      "composition_simplicity": 0.15,
+      "color_harmony": 0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0.3,
+      "contrast": 20,
+      "highlights": -10,
+      "shadows": 25,
+      "clarity": 20,
+      "vibrance": 25,
+      "saturation": 5
+    },
+    "target_values": {
+      "sharpness": {"min": 200, "max": 450, "ideal": 320, "unit": "variance"}
+    },
+    "pro_tips": [
+      "Les yeux doivent être d'une netteté absolue",
+      "Objectif macro ou téléobjectif pour gros plans",
+      "Profondeur de champ très faible, soyez précis",
+      "Révèle des textures invisibles à l'œil nu"
+    ],
+    "common_mistakes": [
+      "Mise au point ratée sur la partie critique",
+      "Profondeur de champ trop faible = flou excessif",
+      "Éclairage trop dur sur les détails délicats",
+      "Bruit numérique visible dans les zones sombres"
+    ]
+  },
+
+  {
+    "id": "pet_minimalist",
+    "label": "Pet Minimaliste",
+    "category": "pet_photography",
+    "difficulty": "beginner",
+    "description": "Animal isolé sur fond simple, minimalisme et espace négatif.",
+    "key_characteristics": ["Fond neutre", "Espace négatif", "Simplicité"],
+    "recommended_subjects": ["Animal seul", "Fond uni", "Silhouette"],
+    "constraints": {
+      "requires_pet": true,
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "max_objects": 1,
+      "requires_simplicity": true,
+      "requires_negative_space": true
+    },
+    "weights": {
+      "composition_simplicity": 0.4,
+      "subject_isolation": 0.35,
+      "brightness": 0.15,
+      "sharpness": 0.1
+    },
+    "lightroom_preset": {
+      "exposure": 0.4,
+      "contrast": 15,
+      "highlights": -10,
+      "shadows": 30,
+      "clarity": 10,
+      "vibrance": 15,
+      "saturation": 5
+    },
+    "pro_tips": [
+      "Fond blanc/clair idéal pour isoler l'animal",
+      "Grande ouverture pour flouter complètement le fond",
+      "L'animal doit occuper max 30% du cadre",
+      "Laissez respirer la composition"
+    ],
+    "common_mistakes": [
+      "Fond pas assez neutre (distractions)",
+      "Animal trop grand dans le cadre",
+      "Manque d'espace négatif",
+      "Éclairage inégal sur le fond"
+    ]
+  },
+
+  {
+    "id": "pet_low_key",
+    "label": "Pet Low Key Dramatique",
+    "category": "pet_photography",
+    "difficulty": "advanced",
+    "description": "Portrait animalier sombre et dramatique, inspiré du cinéma noir.",
+    "key_characteristics": ["Ombres profondes", "Contraste fort", "Mystère"],
+    "recommended_subjects": ["Chats noirs", "Chiens à robe sombre", "Portraits artistiques"],
+    "constraints": {
+      "requires_pet": true,
+      "requires_no_human": true,
+      "requires_no_face": true,
+      "max_brightness": 120,
+      "min_contrast": 50,
+      "max_objects": 1
+    },
+    "weights": {
+      "contrast": 0.4,
+      "brightness": -0.2,
+      "sharpness": 0.25,
+      "subject_isolation": 0.15
+    },
+    "lightroom_preset": {
+      "exposure": -0.8,
+      "contrast": 45,
+      "highlights": -30,
+      "shadows": -40,
+      "whites": -30,
+      "blacks": -50,
+      "clarity": 20,
+      "vibrance": -10
+    },
+    "target_values": {
+      "brightness": {"min": 60, "max": 110, "ideal": 85, "unit": "0-255"},
+      "contrast": {"min": 50, "max": 90, "ideal": 70, "unit": "std_dev"}
+    },
+    "pro_tips": [
+      "Parfait pour animaux à pelage sombre (chat noir, labrador noir)",
+      "Une seule source de lumière latérale pour effet dramatique",
+      "Les yeux doivent capter la lumière (catchlight essentiel)",
+      "Fond noir ou très sombre obligatoire"
+    ],
+    "common_mistakes": [
+      "Perdre tous les détails dans le pelage noir",
+      "Lumière trop diffuse qui casse l'ambiance",
+      "Yeux sans catchlight = mort de l'image",
+      "Sous-exposition excessive qui noie le sujet"
+    ]
+  },
+
+  {
+    "id": "abstract_conceptual",
+    "label": "Abstrait Conceptuel",
+    "category": "creative",
+    "difficulty": "intermediate",
+    "description": "Photographie abstraite et conceptuelle, exploration de formes et couleurs.",
+    "key_characteristics": ["Abstraction", "Couleurs", "Concept"],
+    "recommended_subjects": ["Textures", "Reflets", "Formes"],
+    "constraints": {
+      "requires_no_face": true,
+      "requires_no_human": true,
+      "requires_no_landscape": true,
+      "requires_creativity": true
+    },
+    "weights": {
+      "color_harmony": 0.35,
+      "composition_simplicity": 0.3,
+      "texture_score": 0.2,
+      "geometry_score": 0.15
+    },
+    "lightroom_preset": {
+      "exposure": 0.2,
+      "contrast": 20,
+      "highlights": -10,
+      "shadows": 20,
+      "clarity": 15,
+      "vibrance": 30,
+      "saturation": 15
+    },
+    "pro_tips": [
+      "Cherchez les motifs et répétitions",
+      "Macro pour révéler l'abstraction du quotidien",
+      "Jouez avec la profondeur de champ",
+      "Post-traitement créatif accepté"
+    ],
+    "common_mistakes": [
+      "Abstraction sans intention ou message",
+      "Composition chaotique sans structure",
+      "Couleurs discordantes sans harmonie",
+      "Effet pour l'effet sans fond artistique"
+    ]
+  }
+]

@@ -3,13 +3,45 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PhotoAI Analyzer</title>
+    <title>PhotoAI Analyzer - Analyse Professionnelle</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto';
             margin: 0;
             padding: 0;
+        }
+        .spinner {
+            border: 4px solid rgba(71, 85, 105, 0.3);
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .metric-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        .style-item {
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -22,7 +54,52 @@
 
     <script type="text/babel">
         const { useState } = React;
-        const API_URL = 'https://photo-analyzer-aa3j.onrender.com';
+        const API_URL = 'https://photo-analyzer-1-x9qb.onrender.com/';
+        
+
+        function MetricCard({ label, value, max, color }) {
+            const percentage = Math.min((value / max) * 100, 100);
+            return (
+                <div className="metric-card bg-slate-900/50 rounded-xl p-4 border border-slate-700">
+                    <p className="text-xs text-slate-400 mb-2 font-semibold">{label}</p>
+                    <p className="text-2xl font-bold text-white mb-3">{value.toFixed(1)}</p>
+                    <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+                        <div
+                            className={`bg-gradient-to-r ${color} h-full transition-all`}
+                            style={{ width: `${percentage}%` }}
+                        ></div>
+                    </div>
+                </div>
+            );
+        }
+
+        function StyleRankingItem({ rank, style, score }) {
+            const colors = {
+                1: 'from-yellow-500 to-orange-500',
+                2: 'from-gray-400 to-gray-500',
+                3: 'from-orange-600 to-orange-700'
+            };
+            const badges = ['🥇', '🥈', '🥉'];
+            
+            return (
+                <div className="style-item bg-slate-900/50 border border-slate-700 rounded-xl p-4 hover:border-blue-500/50 transition-all">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-2xl">{badges[rank - 1] || '📍'}</span>
+                        <span className="text-sm font-semibold text-slate-300">#{rank}</span>
+                    </div>
+                    <p className="text-lg font-bold text-white mb-2">{style}</p>
+                    <div className="flex items-center gap-3">
+                        <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden">
+                            <div
+                                className={`bg-gradient-to-r ${colors[rank] || 'from-blue-500 to-cyan-500'} h-full transition-all`}
+                                style={{ width: `${score}%` }}
+                            ></div>
+                        </div>
+                        <span className="text-sm font-bold text-white">{score}%</span>
+                    </div>
+                </div>
+            );
+        }
 
         function PhotoAnalyzer() {
             const [uploadedImage, setUploadedImage] = useState(null);
@@ -79,23 +156,46 @@
                 }
             };
 
+            // Extraire top 5 styles
+            const getTopStyles = () => {
+                if (!analysisResult?.style_affinities?.top_5) return [];
+                return analysisResult.style_affinities.top_5.map(s => ({
+                    label: s.label,
+                    score: Math.round(s.score * 100)
+                }));
+            };
+
+            // Extraire sujets détectés
+            const getDetectedObjects = () => {
+                if (!analysisResult?.subjects) return [];
+                return analysisResult.subjects.slice(0, 10);
+            };
+
+            // Extraire recommandations composition
+            const getCompositionRecommendations = () => {
+                if (!analysisResult?.composition_rules?.prioritized_suggestions) return [];
+                return analysisResult.composition_rules.prioritized_suggestions.slice(0, 5);
+            };
+
             return (
                 <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
                     {/* Header */}
-                    <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur">
-                        <div className="max-w-6xl mx-auto px-6 py-6">
+                    <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur sticky top-0 z-10">
+                        <div className="max-w-7xl mx-auto px-6 py-8">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center text-xl">
+                                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center text-2xl">
                                     ✨
                                 </div>
-                                <h1 className="text-3xl font-bold text-white">PhotoAI Analyzer</h1>
+                                <div>
+                                    <h1 className="text-4xl font-bold text-white">PhotoAI Analyzer</h1>
+                                    <p className="text-slate-400 text-sm">Analyse complète • Styles • Composition • IA</p>
+                                </div>
                             </div>
-                            <p className="text-slate-400 mt-2">Analyse ta photo • Génère un prompt IA</p>
                         </div>
                     </header>
 
                     {/* Main */}
-                    <main className="max-w-6xl mx-auto px-6 py-12">
+                    <main className="max-w-7xl mx-auto px-6 py-12">
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             
                             {/* Upload Zone */}
@@ -105,7 +205,7 @@
                                     onDragLeave={handleDrag}
                                     onDragOver={handleDrag}
                                     onDrop={handleDrop}
-                                    className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
+                                    className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all mb-6 ${
                                         dragActive
                                             ? 'border-blue-500 bg-blue-500/10'
                                             : 'border-slate-600 bg-slate-800/50 hover:bg-slate-800'
@@ -120,19 +220,20 @@
                                     />
                                     
                                     <label htmlFor="image-input" className="flex flex-col items-center gap-4 cursor-pointer">
-                                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-3xl">
+                                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-4xl">
                                             📸
                                         </div>
                                         <div>
-                                            <p className="font-semibold text-white">Dépose ta photo ici</p>
-                                            <p className="text-sm text-slate-400">ou clique pour sélectionner</p>
+                                            <p className="font-semibold text-white text-lg">Dépose ta photo</p>
+                                            <p className="text-sm text-slate-400">ou clique</p>
+                                            <p className="text-xs text-slate-500 mt-2">JPG, PNG • Max 10MB</p>
                                         </div>
                                     </label>
                                 </div>
 
                                 {uploadedImage && (
-                                    <div className="mt-6">
-                                        <p className="text-sm font-semibold text-slate-300 mb-3">Aperçu</p>
+                                    <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+                                        <p className="text-sm font-semibold text-slate-300 mb-3">📷 Aperçu</p>
                                         <img
                                             src={uploadedImage}
                                             alt="Preview"
@@ -145,77 +246,152 @@
                             {/* Results */}
                             <div className="lg:col-span-2">
                                 {isAnalyzing ? (
-                                    <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-12 flex items-center justify-center min-h-96">
+                                    <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-16 flex items-center justify-center">
                                         <div className="text-center">
-                                            <div className="inline-block">
-                                                <div className="w-12 h-12 border-4 border-slate-600 border-t-blue-500 rounded-full animate-spin"></div>
+                                            <div className="flex justify-center mb-4">
+                                                <div className="spinner"></div>
                                             </div>
-                                            <p className="mt-4 text-lg font-semibold text-white">Analyse en cours...</p>
-                                            <p className="text-slate-400 text-sm mt-1">Cela peut prendre 10-15 secondes</p>
+                                            <p className="text-lg font-semibold text-white">Analyse en cours...</p>
+                                            <p className="text-slate-400 text-sm mt-2">Cela peut prendre 10-15 secondes</p>
                                         </div>
                                     </div>
                                 ) : analysisResult ? (
                                     <div className="space-y-6">
                                         {/* Metrics */}
                                         <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
-                                            <h2 className="text-xl font-bold text-white mb-4">📊 Analyse Technique</h2>
+                                            <h2 className="text-2xl font-bold text-white mb-6">📊 Analyse Technique</h2>
                                             <div className="grid grid-cols-2 gap-4">
-                                                <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
-                                                    <p className="text-xs text-slate-400 mb-2">Netteté</p>
-                                                    <p className="text-2xl font-bold text-white">
-                                                        {analysisResult.sharpness?.toFixed(1) || 'N/A'}
-                                                    </p>
-                                                </div>
-                                                <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
-                                                    <p className="text-xs text-slate-400 mb-2">Luminosité</p>
-                                                    <p className="text-2xl font-bold text-white">
-                                                        {analysisResult.brightness?.toFixed(1) || 'N/A'}
-                                                    </p>
-                                                </div>
-                                                <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
-                                                    <p className="text-xs text-slate-400 mb-2">Contraste</p>
-                                                    <p className="text-2xl font-bold text-white">
-                                                        {analysisResult.contrast?.toFixed(1) || 'N/A'}
-                                                    </p>
-                                                </div>
-                                                <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
-                                                    <p className="text-xs text-slate-400 mb-2">Bruit</p>
-                                                    <p className="text-2xl font-bold text-white">
-                                                        {analysisResult.noise?.toFixed(1) || 'N/A'}
-                                                    </p>
-                                                </div>
+                                                <MetricCard
+                                                    label="Netteté"
+                                                    value={analysisResult.sharpness || 0}
+                                                    max={300}
+                                                    color="from-blue-500 to-cyan-500"
+                                                />
+                                                <MetricCard
+                                                    label="Luminosité"
+                                                    value={analysisResult.brightness || 0}
+                                                    max={255}
+                                                    color="from-yellow-500 to-orange-500"
+                                                />
+                                                <MetricCard
+                                                    label="Contraste"
+                                                    value={analysisResult.contrast || 0}
+                                                    max={100}
+                                                    color="from-purple-500 to-pink-500"
+                                                />
+                                                <MetricCard
+                                                    label="Bruit"
+                                                    value={Math.max(0, 50 - (analysisResult.noise || 0))}
+                                                    max={50}
+                                                    color="from-green-500 to-emerald-500"
+                                                />
                                             </div>
                                         </div>
 
                                         {/* Quality Score */}
-                                        <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-2xl p-6">
-                                            <h2 className="text-xl font-bold text-white mb-4">⚡ Score Qualité</h2>
-                                            <div className="flex items-end gap-4">
+                                        <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-2xl p-8">
+                                            <h2 className="text-2xl font-bold text-white mb-4">⚡ Score de Qualité</h2>
+                                            <div className="flex items-center gap-8">
                                                 <div>
-                                                    <div className="text-5xl font-bold text-blue-400">
+                                                    <div className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
                                                         {analysisResult.quality_score || 0}
                                                     </div>
-                                                    <p className="text-slate-300 mt-1">/ 100</p>
+                                                    <p className="text-slate-300">/ 100</p>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
+                                                        <div
+                                                            className="bg-gradient-to-r from-blue-500 to-cyan-500 h-full"
+                                                            style={{ width: `${(analysisResult.quality_score || 0)}%` }}
+                                                        ></div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Advice */}
-                                        {analysisResult.advice && (
+                                        {/* Top 5 Styles */}
+                                        {getTopStyles().length > 0 && (
                                             <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
-                                                <h2 className="text-xl font-bold text-white mb-4">💡 Conseils</h2>
-                                                <ul className="space-y-2">
-                                                    {analysisResult.advice.slice(0, 5).map((tip, idx) => (
-                                                        <li key={idx} className="flex gap-3 text-slate-300 text-sm">
-                                                            <span className="text-blue-400 font-bold">→</span>
-                                                            {tip}
+                                                <h2 className="text-2xl font-bold text-white mb-6">🎨 Top 5 Styles Compatibles</h2>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    {getTopStyles().map((style, idx) => (
+                                                        <StyleRankingItem
+                                                            key={idx}
+                                                            rank={idx + 1}
+                                                            style={style.label}
+                                                            score={style.score}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Detected Objects */}
+                                        {getDetectedObjects().length > 0 && (
+                                            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+                                                <h2 className="text-2xl font-bold text-white mb-6">🎯 Objets Détectés</h2>
+                                                <div className="overflow-x-auto">
+                                                    <table className="w-full text-sm">
+                                                        <thead>
+                                                            <tr className="border-b border-slate-700">
+                                                                <th className="text-left py-3 px-4 text-slate-300 font-semibold">Objet</th>
+                                                                <th className="text-left py-3 px-4 text-slate-300 font-semibold">Confiance</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {getDetectedObjects().map((obj, idx) => (
+                                                                <tr key={idx} className="border-b border-slate-700/50 hover:bg-slate-900/50 transition-all">
+                                                                    <td className="py-3 px-4 text-slate-200 capitalize">{obj.class}</td>
+                                                                    <td className="py-3 px-4">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div className="w-16 bg-slate-700 rounded-full h-2 overflow-hidden">
+                                                                                <div
+                                                                                    className="bg-gradient-to-r from-green-500 to-emerald-500 h-full"
+                                                                                    style={{ width: `${(obj.confidence || 0) * 100}%` }}
+                                                                                ></div>
+                                                                            </div>
+                                                                            <span className="text-slate-300 font-semibold">{Math.round((obj.confidence || 0) * 100)}%</span>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Composition Recommendations */}
+                                        {getCompositionRecommendations().length > 0 && (
+                                            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+                                                <h2 className="text-2xl font-bold text-white mb-6">📐 Recommandations Composition</h2>
+                                                <ul className="space-y-3">
+                                                    {getCompositionRecommendations().map((rec, idx) => (
+                                                        <li key={idx} className="flex gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700 hover:border-blue-500/50 transition-all">
+                                                            <span className="text-blue-400 font-bold text-xl">→</span>
+                                                            <span className="text-slate-200">{rec}</span>
                                                         </li>
                                                     ))}
                                                 </ul>
                                             </div>
                                         )}
 
-                                        {/* New Analysis Button */}
+                                        {/* Advice */}
+                                        {analysisResult.advice && analysisResult.advice.length > 0 && (
+                                            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+                                                <h2 className="text-2xl font-bold text-white mb-6">💡 Conseils d'Experts</h2>
+                                                <ul className="space-y-3">
+                                                    {analysisResult.advice.slice(0, 6).map((tip, idx) => (
+                                                        <li key={idx} className="flex gap-3 text-slate-200 text-sm p-3 bg-slate-900/50 rounded-lg border border-slate-700 hover:border-yellow-500/50 transition-all">
+                                                            <span className="text-yellow-400 font-bold">💡</span>
+                                                            <span>{tip}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+
+                                        {/* New Analysis */}
                                         <button
                                             onClick={() => {
                                                 setUploadedImage(null);
@@ -223,26 +399,36 @@
                                             }}
                                             className="w-full bg-gradient-to-r from-slate-700 to-slate-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-slate-600 hover:to-slate-500 transition-all"
                                         >
-                                            Analyser une autre photo
+                                            🔄 Analyser une Autre Photo
                                         </button>
                                     </div>
                                 ) : uploadedImage && !isAnalyzing ? (
-                                    <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-12 flex items-center justify-center min-h-96">
+                                    <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-12 flex items-center justify-center">
                                         <button
                                             onClick={() => analyzeImage(uploadedImage)}
-                                            className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold py-4 px-8 rounded-xl text-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+                                            className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold py-4 px-10 rounded-xl text-lg hover:shadow-lg hover:shadow-blue-500/50 transition-all"
                                         >
-                                            🚀 Lancer l'analyse
+                                            🚀 Lancer l'Analyse
                                         </button>
                                     </div>
                                 ) : (
                                     <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-12 flex items-center justify-center min-h-96">
-                                        <p className="text-slate-400 text-lg">Dépose une photo pour commencer</p>
+                                        <div className="text-center">
+                                            <p className="text-slate-400 text-xl">📸 Dépose une photo pour commencer</p>
+                                            <p className="text-slate-500 text-sm mt-2">Analyse complète : technique, composition, styles</p>
+                                        </div>
                                     </div>
                                 )}
                             </div>
                         </div>
                     </main>
+
+                    {/* Footer */}
+                    <footer className="border-t border-slate-700 bg-slate-900/50 mt-16">
+                        <div className="max-w-7xl mx-auto px-6 py-8 text-center text-slate-400 text-sm">
+                            <p>🚀 PhotoAI Analyzer - Bêta Exclusive Club Photo</p>
+                        </div>
+                    </footer>
                 </div>
             );
         }
