@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import os
-os.environ["OPENCV_VIDEOIO_PRIORITY_MSMF"] = "0"
+os.environ["OPENCV_VIDEOIO_PRIORITY_MSMF"] = "0";
 
 
 const API_URL = 'https://photo-analyzer-1-x9qb.onrender.com';
