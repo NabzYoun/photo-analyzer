@@ -54,7 +54,7 @@
 
     <script type="text/babel">
         const { useState } = React;
-        const API_URL = 'https://photo-analyzer-1-x9qb.onrender.com';
+        const API_URL = 'https://photo-analyzer-1-x9qb.onrender.com'.replace(/\/$/, '');
         
 
         function MetricCard({ label, value, max, color }) {
@@ -156,6 +156,11 @@
         // DEBUG : afficher la réponse brute
         const text = await response.text();
         console.log("Réponse brute:", text);
+
+        if (!text.trim().startsWith('{')) {
+            throw new Error("La réponse n'est pas du JSON");
+        }
+
         
         // Essayer de parser en JSON
         const data = JSON.parse(text);
