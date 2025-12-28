@@ -17,7 +17,7 @@ from analyzer import analyze_image
 from core import make_json_safe
 
 app = Flask(__name__)
-CORS(app)  # Activer CORS pour React
+CORS(app origins=['https://photo-analyzer-1-x9qb.onrender.com'])  # Activer CORS pour React
 
 @app.route('/api/analyze', methods=['POST'])
 def api_analyze():
