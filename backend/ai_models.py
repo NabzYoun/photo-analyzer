@@ -377,12 +377,20 @@ def calculate_style_affinity(metrics, profile):
         print(f"   ❌ Éliminé : Image N&B mais profil couleur requis")
         return 0.0
     
-    # Contrainte visage requis
+# Contrainte visage requis
     if constraints.get('requires_face'):
-        num_faces = metrics.get('num_faces', 0)
-        min_faces = constraints.get('min_faces', 1)
-        print(f"   🔍 Visages détectés : {num_faces} (min requis : {min_faces})")
-        if num_faces < min_faces:
+    num_faces = metrics.get('num_faces', 0)
+    min_faces = constraints.get('min_faces', 1)
+    print(f"   🔍 PORTRAIT CHECK - Visages détectés : {num_faces} (min requis : {min_faces})")
+    
+    # 🆕 ASSOUPLISSEMENT : si au moins 1 personne détectée, considérer comme portrait possible
+    has_person = any(s.get('class', '').lower() == 'person' for s in metrics.get('subjects', []))
+    
+    if num_faces < min_faces:
+        if has_person and num_faces == 0:
+            print(f"   ⚠️ Aucun visage mais personne détectée -> pénalité légère au lieu d'élimination")
+            # On ne retourne pas 0.0, mais on va appliquer une pénalité dans le score
+        else:
             print(f"   ❌ Éliminé : Pas assez de visages")
             return 0.0
     

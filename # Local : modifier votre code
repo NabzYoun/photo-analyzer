@@ -1,0 +1,11 @@
+# Local : modifier votre code
+git add .
+git commit -m "Votre message"
+git push origin main
+
+# Frontend Render : se met à jour automatiquement
+
+# Backend PythonAnywhere : mise à jour manuelle
+cd /home/NabzYoun/photo-analyzer
+git pull origin main
+# Puis Reload dans l'onglet Web
