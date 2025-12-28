@@ -301,6 +301,7 @@ def compute_advanced_metrics(img_rgb, analysis):
         metrics['color_desaturation'] = 1.0
     
     subjects = analysis.get('subjects', [])
+    metrics['subjects'] = subjects  # 🆕 AJOUTER CETTE LIGNE
     metrics['composition_balance'] = compute_composition_balance(img_rgb, subjects)
     metrics['composition_simplicity'] = compute_composition_simplicity(img_rgb)
     metrics['geometry_score'] = compute_geometry_score(img_rgb)
@@ -384,7 +385,7 @@ def calculate_style_affinity(metrics, profile):
         print(f"   🔍 PORTRAIT CHECK - Visages détectés : {num_faces} (min requis : {min_faces})")
         
         # 🆕 ASSOUPLISSEMENT : si au moins 1 personne détectée, considérer comme portrait possible
-        subjects_list = analysis.get('subjects', [])
+        subjects_list = metrics.get('subjects', [])
         has_person = any(s.get('class', '').lower() == 'person' for s in subjects_list)
         
         if num_faces < min_faces:
