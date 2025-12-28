@@ -11,6 +11,12 @@ import cv2
 from io import BytesIO
 import json
 import os
+import sys
+
+# ⭐ AJOUTER CES 3 LIGNES ⭐
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Ajouter le dossier backend au path Python
+sys.path.insert(0, BASE_DIR)
 
 # Import tes modules d'analyzer
 from analyzer import analyze_image
