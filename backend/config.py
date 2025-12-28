@@ -20,7 +20,9 @@ class Config:
     # Fichiers de données
     PLACES_CLASSES_FILE = "data/categories_places365.txt"
     PLACES_MODEL_URL = "http://places2.csail.mit.edu/models_places365/resnet50_places365.pth.tar"
-    STYLES_PROFILES_FILE = "data/styles_profiles.json"
+    import os
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    STYLES_PROFILES_FILE = os.path.join(BASE_DIR, 'data', 'styles_profiles.json')
     
     # Plages de normalisation
     BRIGHTNESS_RANGE = (60, 200)

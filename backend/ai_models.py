@@ -162,10 +162,14 @@ def blip_caption(img_rgb, max_tokens=64):
 def load_style_profiles(path=None):
     """Chargement profils stylistiques"""
     if path is None:
-        path = Config.STYLES_PROFILES_FILE
+        # Obtenir le chemin absolu du dossier contenant ai_models.py
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        # Construire le chemin vers le fichier JSON
+        path = os.path.join(BASE_DIR, 'data', 'styles_profiles.json')
     
     print(f"🔍 Tentative de chargement : {path}")
-    print(f"🔍 Chemin absolu : {os.path.abspath(path)}")
+    print(f"📂 Chemin absolu : {os.path.abspath(path)}")    
+
     
     profiles = model_cache.get('style_profiles')
     if profiles is not None:
