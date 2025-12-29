@@ -113,7 +113,7 @@ def analyze_image_from_array(img_rgb):
     from analysis import (
         dominant_colors, analyze_composition, build_zone_report
     )
-    from ai_models import predict_scene, compute_all_style_affinities, compute_quality_score
+    from ai_models import predict_scene, compute_all_style_affinities, compute_quality_score, blip_caption
     from composition_rules import CompositionAnalyzer
     
     gray = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2GRAY)
@@ -141,6 +141,16 @@ def analyze_image_from_array(img_rgb):
     comp = analyze_composition(img_rgb, subjects)
     scene = predict_scene(img_rgb)
     
+    # 🆕 Génération du caption (légende)
+    try:
+        print("  💬 Génération de la légende...")
+        caption, error = blip_caption(img_rgb)
+        if error or not caption:
+            caption = "Image d'analyse"
+    except Exception as e:
+        print(f"  ⚠️ Erreur caption: {e}")
+        caption = "Image d'analyse"
+    
     # Zones
     try:
         zones = build_zone_report(img_rgb, subjects=subjects, scene_type=scene.get('scene_type', 'unknown'))
@@ -166,6 +176,7 @@ def analyze_image_from_array(img_rgb):
         'faces': faces,
         'composition': comp,
         'scene': scene,
+        'caption': caption,  # 🆕 AJOUT
         'horizon_angle': round(float(horizon_angle), 2),
         'zones': zones
     }
@@ -188,7 +199,6 @@ def analyze_image_from_array(img_rgb):
         analysis['composition_rules'] = {}
     
     return analysis
-
 
 def extract_best_style(analysis):
     """Extraire le meilleur style pour l'affichage"""
