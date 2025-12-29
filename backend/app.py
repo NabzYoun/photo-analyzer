@@ -22,6 +22,7 @@ sys.path.insert(0, BASE_DIR)
 from analyzer import analyze_image
 from core import make_json_safe
 
+
 app = Flask(__name__)
 CORS(app)  # Activer CORS pour React
 
@@ -145,6 +146,8 @@ def analyze_image_from_array(img_rgb):
     try:
         print("  💬 Génération de la légende...")
         caption, error = blip_caption(img_rgb)
+        print("CAPTION BRUTE =", caption)
+        print("ERREUR BLIP =", error)
         if error or not caption:
             caption = "Image d'analyse"
     except Exception as e:
