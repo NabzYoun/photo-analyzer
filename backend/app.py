@@ -95,6 +95,105 @@ def api_analyze():
         traceback.print_exc()
         return jsonify({'error': str(e), 'success': False}), 500
 
+#nha 20251230
+def generate_smart_caption(analysis):
+    """
+    Génère une description intelligente basée sur l'analyse
+    si BLIP ne fonctionne pas
+    """
+    try:
+        subjects = analysis.get('subjects', [])
+        scene = analysis.get('scene', {})
+        scene_type = scene.get('scene_type', 'unknown')
+        brightness = analysis.get('brightness', 128)
+        faces = analysis.get('faces', [])
+        
+        # Construction de la description
+        parts = []
+        
+        # 1. Type de scène
+        scene_descriptions = {
+            'mountain': 'Une photo de montagne',
+            'forest': 'Une photo en forêt',
+            'beach': 'Une photo de plage',
+            'urban': 'Une photo urbaine',
+            'street': 'Une photo de rue',
+            'indoor': 'Une photo en intérieur',
+            'sky': 'Une photo avec un ciel visible',
+            'nature': 'Une photo de nature',
+            'landscape': 'Un paysage'
+        }
+        
+        scene_found = False
+        for key, desc in scene_descriptions.items():
+            if key in scene_type.lower():
+                parts.append(desc)
+                scene_found = True
+                break
+        
+        if not scene_found:
+            parts.append('Une photographie')
+        
+        # 2. Sujets détectés
+        if len(faces) > 0:
+            if len(faces) == 1:
+                parts.append('avec un portrait')
+            else:
+                parts.append(f'avec {len(faces)} personnes')
+        elif subjects:
+            subject_classes = [s['class'] for s in subjects[:3]]
+            if 'person' in subject_classes:
+                parts.append('montrant une ou plusieurs personnes')
+            else:
+                # Traduire les classes d'objets
+                translations = {
+                    'car': 'une voiture',
+                    'dog': 'un chien',
+                    'cat': 'un chat',
+                    'tree': 'des arbres',
+                    'building': 'des bâtiments',
+                    'bird': 'un oiseau',
+                    'flower': 'des fleurs',
+                    'bicycle': 'un vélo',
+                    'motorcycle': 'une moto',
+                    'boat': 'un bateau'
+                }
+                
+                translated = [translations.get(s, s) for s in subject_classes]
+                if len(translated) == 1:
+                    parts.append(f'avec {translated[0]}')
+                elif len(translated) == 2:
+                    parts.append(f'avec {translated[0]} et {translated[1]}')
+                else:
+                    parts.append(f'avec {", ".join(translated[:2])} et plus')
+        
+        # 3. Ambiance lumineuse
+        if brightness < 80:
+            parts.append('dans une ambiance sombre')
+        elif brightness > 180:
+            parts.append('très lumineuse')
+        else:
+            parts.append('bien éclairée')
+        
+        # 4. Qualité
+        quality = analysis.get('quality_score', 50)
+        if quality > 75:
+            parts.append('de haute qualité')
+        elif quality > 50:
+            parts.append('de bonne qualité')
+        
+        # Assembler
+        caption = ' '.join(parts) + '.'
+        
+        # Première lettre en majuscule
+        caption = caption[0].upper() + caption[1:]
+        
+        return caption
+        
+    except Exception as e:
+        print(f"Erreur generate_smart_caption: {e}")
+        return "Photographie professionnelle analysée."
+
 
 def analyze_image_from_array(img_rgb):
     """
@@ -143,16 +242,19 @@ def analyze_image_from_array(img_rgb):
     scene = predict_scene(img_rgb)
     
     # 🆕 Génération du caption (légende)
+    caption = None
     try:
-        print("  💬 Génération de la légende...")
+        print("  💬 Génération de la légende avec BLIP...")
         caption, error = blip_caption(img_rgb)
-        print("CAPTION BRUTE =", caption)
-        print("ERREUR BLIP =", error)
-        if error or not caption:
-            caption = "Image d'analyse"
+        print(f"CAPTION BRUTE = {caption}")
+        print(f"ERREUR BLIP = {error}")
+        
+        if error or not caption or caption.strip() == "":
+            print("  ⚠️ BLIP a échoué, utilisation du fallback intelligent")
+            caption = None  # Force le fallback
     except Exception as e:
-        print(f"  ⚠️ Erreur caption: {e}")
-        caption = "Image d'analyse"
+        print(f"  ⚠️ Erreur BLIP: {e}")
+        caption = None
     
     # Zones
     try:
@@ -179,10 +281,11 @@ def analyze_image_from_array(img_rgb):
         'faces': faces,
         'composition': comp,
         'scene': scene,
-        'caption': caption,  # 🆕 AJOUT
+       # 'caption': caption,  # 🆕 AJOUT
         'horizon_angle': round(float(horizon_angle), 2),
         'zones': zones
     }
+    
     
     # Score de qualité
     quality = compute_quality_score(analysis)
@@ -221,6 +324,32 @@ def extract_best_style(analysis):
         pass
     
     return None
+
+
+#nha
+def generate_caption_fallback(analysis):
+    subjects = analysis.get("subjects", [])
+    scene = analysis.get("scene", {}).get("scene_type", "")
+    brightness = analysis.get("brightness", 128)
+    
+    parts = []
+
+    if subjects:
+        main = subjects[0].get("class", "sujet")
+        parts.append(f"Photographie mettant en scène un {main}")
+
+    if scene:
+        parts.append(f"dans un contexte {scene.replace('_', ' ')}")
+
+    if brightness < 80:
+        parts.append("avec une ambiance sombre")
+    elif brightness > 180:
+        parts.append("avec une ambiance lumineuse")
+    else:
+        parts.append("avec une lumière équilibrée")
+
+    return " ".join(parts).capitalize() + "."
+#finnha
 
 
 def generate_ai_prompt(analysis):
