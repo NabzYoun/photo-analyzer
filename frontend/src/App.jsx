@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import { Upload, Camera, Sparkles, Zap, Eye, Palette, Tag, Download, Copy, History, BarChart3, TrendingUp } from 'lucide-react';
+import { Upload, Camera, Sparkles, Zap, Eye, Palette, Tag } from 'lucide-react';
 
 const API_URL = 'https://nabzyoun.pythonanywhere.com';
+//const API_URL = 'http://localhost:10000';
 
 export default function PhotoAnalyzer() {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
-  const [analysisHistory, setAnalysisHistory] = useState([]);
-  const [showHistogram, setShowHistogram] = useState(false);
-  const [copiedPrompt, setCopiedPrompt] = useState(false);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -46,76 +44,12 @@ export default function PhotoAnalyzer() {
 
       const data = await response.json();
       setResults(data);
-      
-      // Ajouter à l'historique
-      const historyItem = {
-        id: Date.now(),
-        timestamp: new Date().toLocaleString('fr-FR'),
-        image: image,
-        quality_score: data.quality_score,
-        best_style: data.best_style?.label || 'N/A'
-      };
-      setAnalysisHistory(prev => [historyItem, ...prev].slice(0, 5));
     } catch (err) {
       setError(err.message);
       console.error('Erreur analyse:', err);
     } finally {
       setLoading(false);
     }
-  };
-
-  const copyPromptToClipboard = () => {
-    if (results?.ai_prompt) {
-      navigator.clipboard.writeText(results.ai_prompt);
-      setCopiedPrompt(true);
-      setTimeout(() => setCopiedPrompt(false), 2000);
-    }
-  };
-
-  const downloadReport = () => {
-    if (!results) return;
-    
-    const report = `
-RAPPORT D'ANALYSE PHOTO
-========================
-Date: ${new Date().toLocaleString('fr-FR')}
-
-MÉTRIQUES TECHNIQUES
---------------------
-Netteté: ${Math.round(results.sharpness)}/200
-Luminosité: ${Math.round(results.brightness)}/255
-Contraste: ${Math.round(results.contrast)}/100
-Bruit: ${Math.round(results.noise)}/100
-
-QUALITÉ GLOBALE: ${results.quality_score}/100
-
-STYLE RECOMMANDÉ
-----------------
-${results.best_style?.label || 'N/A'}
-Catégorie: ${results.best_style?.category || 'N/A'}
-Difficulté: ${results.best_style?.difficulty || 'N/A'}
-
-PROMPT IA GÉNÉRÉ
-----------------
-${results.ai_prompt || 'N/A'}
-
-CONSEILS D'AMÉLIORATION
------------------------
-${results.advice?.join('\n') || 'Aucun conseil spécifique'}
-    `.trim();
-    
-    const blob = new Blob([report], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `rapport-photo-${Date.now()}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const loadFromHistory = (historyItem) => {
-    setImage(historyItem.image);
-    setResults(null);
   };
 
   const getDifficultyColor = (difficulty) => {
@@ -146,39 +80,10 @@ ${results.advice?.join('\n') || 'Aucun conseil spécifique'}
         <div className="text-center mb-8 pt-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Camera className="w-12 h-12 text-purple-400" />
-            <h1 className="text-5xl font-bold text-white">Photo Analyzer Pro</h1>
+            <h1 className="text-5xl font-bold text-white"> TEST Photo Analyzer</h1>
           </div>
           <p className="text-purple-200 text-lg">Analyse professionnelle de vos photos avec IA</p>
         </div>
-
-        {/* Historique */}
-        {analysisHistory.length > 0 && (
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/20">
-            <h3 className="text-white text-xl font-semibold mb-4 flex items-center gap-2">
-              <History className="w-6 h-6" />
-              Historique des analyses ({analysisHistory.length})
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {analysisHistory.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => loadFromHistory(item)}
-                  className="cursor-pointer group relative rounded-lg overflow-hidden border-2 border-white/20 hover:border-purple-400 transition-all"
-                >
-                  <img
-                    src={item.image}
-                    alt="Historique"
-                    className="w-full h-32 object-cover group-hover:scale-110 transition-transform"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-2">
-                    <p className="text-white text-xs font-semibold">{item.best_style}</p>
-                    <p className="text-purple-300 text-xs">Score: {item.quality_score}/100</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Upload Zone */}
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 mb-6 border border-white/20">
@@ -216,9 +121,8 @@ ${results.advice?.join('\n') || 'Aucun conseil spécifique'}
               />
             </div>
 
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 flex flex-col gap-4">
-              <h3 className="text-white text-xl font-semibold">Actions</h3>
-              
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 flex flex-col">
+              <h3 className="text-white text-xl font-semibold mb-4">Actions</h3>
               <button
                 onClick={analyzeImage}
                 disabled={loading}
@@ -237,36 +141,8 @@ ${results.advice?.join('\n') || 'Aucun conseil spécifique'}
                 )}
               </button>
 
-              {results && (
-                <>
-                  <button
-                    onClick={downloadReport}
-                    className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Download className="w-5 h-5" />
-                    Télécharger le rapport
-                  </button>
-
-                  <button
-                    onClick={copyPromptToClipboard}
-                    className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-600 hover:to-emerald-600 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Copy className="w-5 h-5" />
-                    {copiedPrompt ? '✓ Copié !' : 'Copier le prompt IA'}
-                  </button>
-
-                  <button
-                    onClick={() => setShowHistogram(!showHistogram)}
-                    className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all flex items-center justify-center gap-2"
-                  >
-                    <BarChart3 className="w-5 h-5" />
-                    {showHistogram ? 'Masquer' : 'Voir'} l'histogramme
-                  </button>
-                </>
-              )}
-
               {error && (
-                <div className="bg-red-500/20 border border-red-500 text-red-200 p-4 rounded-lg">
+                <div className="mt-4 bg-red-500/20 border border-red-500 text-red-200 p-4 rounded-lg">
                   <p className="font-semibold">Erreur:</p>
                   <p className="text-sm">{error}</p>
                 </div>
@@ -275,76 +151,23 @@ ${results.advice?.join('\n') || 'Aucun conseil spécifique'}
           </div>
         )}
 
-        {/* Histogramme simplifié */}
-        {results && showHistogram && (
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/20">
-            <h3 className="text-white text-2xl font-bold mb-4 flex items-center gap-2">
-              <BarChart3 className="w-7 h-7 text-orange-400" />
-              Distribution de la lumière
-            </h3>
-            <div className="bg-black/30 rounded-lg p-6">
-              <div className="flex items-end justify-between h-40 gap-1">
-                {/* Simulation d'histogramme basé sur brightness */}
-                {Array.from({ length: 20 }, (_, i) => {
-                  const height = Math.random() * 100;
-                  return (
-                    <div
-                      key={i}
-                      className="bg-gradient-to-t from-purple-500 to-pink-500 rounded-t"
-                      style={{ 
-                        width: '4%',
-                        height: `${height}%`,
-                        opacity: 0.8
-                      }}
-                    />
-                  );
-                })}
-              </div>
-              <div className="flex justify-between mt-2 text-purple-300 text-xs">
-                <span>Ombres</span>
-                <span>Tons moyens</span>
-                <span>Hautes lumières</span>
-              </div>
-            </div>
-            <p className="text-purple-200 text-sm mt-4">
-              Luminosité moyenne: {Math.round(results.brightness)}/255
-              {results.brightness < 85 && " - Image sous-exposée, beaucoup d'ombres"}
-              {results.brightness > 85 && results.brightness < 170 && " - Exposition équilibrée"}
-              {results.brightness > 170 && " - Image lumineuse, attention aux zones cramées"}
-            </p>
-          </div>
-        )}
-
-        {/* Prompt IA en grand */}
-        {results?.ai_prompt && (
-          <div className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-indigo-400/30">
-            <h3 className="text-white text-2xl font-bold mb-4 flex items-center gap-2">
-              <Sparkles className="w-7 h-7 text-indigo-400" />
-              Prompt IA généré pour Midjourney / DALL-E
-            </h3>
-            <div className="bg-black/30 rounded-lg p-6 border border-indigo-400/20">
-              <p className="text-indigo-100 text-lg leading-relaxed font-mono">
-                {results.ai_prompt}
-              </p>
-            </div>
-            <div className="flex gap-3 mt-4">
-              <button
-                onClick={copyPromptToClipboard}
-                className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold transition-all flex items-center justify-center gap-2"
-              >
-                <Copy className="w-4 h-4" />
-                {copiedPrompt ? '✓ Copié !' : 'Copier'}
-              </button>
-              <button className="flex-1 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold transition-all">
-                Ouvrir Midjourney
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Résultats (reste identique) */}
+        {/* Résultats */}
         {results && (
           <div className="space-y-6">
+
+                {/* 🔍 DEBUG - Vérification caption */}
+    <div className="bg-blue-500/20 backdrop-blur-lg rounded-2xl p-4 border border-blue-400/30">
+      <h4 className="text-blue-300 font-bold mb-2">🔍 DEBUG - Caption reçu :</h4>
+      <p className="text-blue-100 font-mono text-sm break-words">
+        Caption : "{results.full_analysis?.caption || 'VIDE'}"
+      </p>
+      <p className="text-blue-200 text-xs mt-2">
+        Type: {typeof results.full_analysis?.caption} | 
+        Longueur: {results.full_analysis?.caption?.length || 0} caractères
+      </p>
+    </div>
+
+    
             {/* Description de la photo */}
             {results.full_analysis?.caption && (
               <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
@@ -401,10 +224,7 @@ ${results.advice?.join('\n') || 'Aucun conseil spécifique'}
 
             {/* Score de Qualité */}
             <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-lg rounded-2xl p-6 border border-purple-400/30">
-              <h3 className="text-white text-2xl font-bold mb-4 flex items-center gap-2">
-                <TrendingUp className="w-7 h-7" />
-                Score de Qualité Global
-              </h3>
+              <h3 className="text-white text-2xl font-bold mb-4">Score de Qualité Global</h3>
               <div className="flex items-center gap-6">
                 <div className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
                   {results.quality_score}
@@ -470,7 +290,176 @@ ${results.advice?.join('\n') || 'Aucun conseil spécifique'}
               </div>
             )}
 
-            {/* Conseils d'amélioration */}
+            {/* 📘 Section Pédagogique : Lecture de l'image */}
+            <div className="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 backdrop-blur-lg rounded-2xl p-6 border border-indigo-500/30">
+              <h3 className="text-white text-2xl font-bold mb-4 flex items-center gap-2">
+                📘 Lecture de l'image
+              </h3>
+              <div className="space-y-3 text-purple-100">
+                <p>
+                  <strong className="text-purple-300">Luminosité :</strong> Cette image présente une dominante lumineuse de {results.brightness}/255, 
+                  ce qui crée une ambiance plutôt {results.brightness > 150 ? "claire et aérée" : results.brightness > 100 ? "équilibrée" : "sombre et intimiste"}.
+                  {results.brightness < 80 && " ⚠️ L'image est sous-exposée, envisagez d'augmenter l'exposition."}
+                  {results.brightness > 200 && " ⚠️ L'image est surexposée, attention aux zones cramées."}
+                </p>
+                
+                <p>
+                  <strong className="text-purple-300">Contraste :</strong> Le contraste de {Math.round(results.contrast)} 
+                  {results.contrast > 70 ? " est élevé, créant une image dynamique et percutante avec des noirs profonds et des blancs lumineux." : 
+                   results.contrast > 40 ? " est modéré, offrant un bon équilibre entre ombres et lumières." :
+                   " est faible, donnant une image douce mais potentiellement plate. Augmentez le contraste pour plus d'impact."}
+                </p>
+                
+                <p>
+                  <strong className="text-purple-300">Netteté :</strong> Avec un score de {Math.round(results.sharpness)}/200, 
+                  {results.sharpness > 150 ? " votre image est très nette, idéale pour les impressions grand format." :
+                   results.sharpness > 100 ? " la netteté est correcte pour un usage web et réseaux sociaux." :
+                   " l'image manque de netteté. Utilisez un trépied ou augmentez la vitesse d'obturation."}
+                </p>
+                
+                <p>
+                  <strong className="text-purple-300">Bruit numérique :</strong> Niveau de bruit : {Math.round(results.noise)}
+                  {results.noise < 20 ? " (excellent - image très propre)" :
+                   results.noise < 40 ? " (acceptable - bruit modéré)" :
+                   " (élevé - réduisez les ISO ou utilisez la réduction de bruit en post-production)"}
+                </p>
+              </div>
+            </div>
+
+            {/* 🎨 Section Pédagogique : Composition */}
+            {results.composition_score && (
+              <div className="bg-gradient-to-r from-pink-900/40 to-orange-900/40 backdrop-blur-lg rounded-2xl p-6 border border-pink-500/30">
+                <h3 className="text-white text-2xl font-bold mb-4 flex items-center gap-2">
+                  🎨 Analyse de la composition
+                </h3>
+                <div className="space-y-3 text-orange-100">
+                  <p>
+                    <strong className="text-orange-300">Score de composition :</strong> {results.composition_score}/100
+                  </p>
+                  <p>
+                    {results.composition_score > 70 ? 
+                      "✨ Excellente composition ! Vos sujets sont bien placés selon les règles photographiques classiques." :
+                     results.composition_score > 50 ?
+                      "👍 Bonne composition générale. Quelques ajustements pourraient améliorer l'équilibre visuel." :
+                      "💡 La composition peut être améliorée. Pensez à la règle des tiers, aux lignes directrices et à l'équilibre des masses."}
+                  </p>
+                  
+                  {results.subjects && results.subjects.length > 0 && (
+                    <p>
+                      <strong className="text-orange-300">Sujets principaux :</strong> {results.subjects.length} élément(s) détecté(s).
+                      {results.subjects.length === 1 && " Un sujet unique permet une composition minimaliste et forte."}
+                      {results.subjects.length > 3 && " ⚠️ Attention à ne pas surcharger l'image, privilégiez la simplicité."}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 🎯 Section Pédagogique : Conseils personnalisés */}
+            <div className="bg-gradient-to-r from-green-900/40 to-teal-900/40 backdrop-blur-lg rounded-2xl p-6 border border-green-500/30">
+              <h3 className="text-white text-2xl font-bold mb-4 flex items-center gap-2">
+                🎯 Vos axes d'amélioration
+              </h3>
+              
+              <div className="space-y-4">
+                {/* Analyse technique */}
+                <div className="bg-black/20 rounded-lg p-4 border border-green-500/20">
+                  <h4 className="text-green-300 font-semibold mb-2">📐 Technique</h4>
+                  <ul className="space-y-2 text-teal-100 text-sm">
+                    {results.sharpness < 100 && (
+                      <li>• Améliorez la netteté : utilisez un trépied, augmentez la vitesse d'obturation ou activez la stabilisation</li>
+                    )}
+                    {results.noise > 40 && (
+                      <li>• Réduisez le bruit : diminuez les ISO, shootez avec plus de lumière ou utilisez la réduction de bruit</li>
+                    )}
+                    {(results.brightness < 80 || results.brightness > 200) && (
+                      <li>• Corrigez l'exposition : {results.brightness < 80 ? "augmentez" : "diminuez"} la luminosité pour un meilleur équilibre</li>
+                    )}
+                    {results.contrast < 30 && (
+                      <li>• Augmentez le contraste pour donner plus de profondeur et d'impact à votre image</li>
+                    )}
+                    {!results.sharpness && !results.noise && results.brightness > 80 && results.brightness < 200 && results.contrast > 30 && (
+                      <li>✅ Excellente maîtrise technique ! Continuez comme ça.</li>
+                    )}
+                  </ul>
+                </div>
+
+                {/* Analyse créative */}
+                <div className="bg-black/20 rounded-lg p-4 border border-green-500/20">
+                  <h4 className="text-green-300 font-semibold mb-2">🎨 Créativité</h4>
+                  <ul className="space-y-2 text-teal-100 text-sm">
+                    {results.best_style && (
+                      <li>• Explorez le style {results.best_style.label} pour développer votre signature artistique</li>
+                    )}
+                    {results.composition_score < 60 && (
+                      <li>• Travaillez votre composition : règle des tiers, lignes directrices, cadrage</li>
+                    )}
+                    {results.subjects && results.subjects.length === 0 && (
+                      <li>• Ajoutez un sujet principal pour donner un point focal à votre image</li>
+                    )}
+                    <li>• Expérimentez avec différentes heures de la journée pour varier les ambiances lumineuses</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* 📚 Section Pédagogique : Concepts photographiques */}
+            <div className="bg-gradient-to-r from-blue-900/40 to-cyan-900/40 backdrop-blur-lg rounded-2xl p-6 border border-blue-500/30">
+              <h3 className="text-white text-2xl font-bold mb-4 flex items-center gap-2">
+                📚 Le saviez-vous ?
+              </h3>
+              
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* Carte concept 1 */}
+                <div className="bg-black/30 rounded-lg p-4 border border-blue-400/20">
+                  <h4 className="text-blue-300 font-semibold mb-2 flex items-center gap-2">
+                    💡 Triangle d'exposition
+                  </h4>
+                  <p className="text-cyan-100 text-sm">
+                    L'exposition parfaite est un équilibre entre <strong>ISO</strong> (sensibilité), 
+                    <strong> vitesse d'obturation</strong> (temps) et <strong>ouverture</strong> (diaphragme). 
+                    Votre image à {results.brightness} de luminosité suggère 
+                    {results.brightness > 150 ? " une bonne exposition ou une scène lumineuse." : " un manque de lumière ou une sous-exposition."}
+                  </p>
+                </div>
+
+                {/* Carte concept 2 */}
+                <div className="bg-black/30 rounded-lg p-4 border border-blue-400/20">
+                  <h4 className="text-blue-300 font-semibold mb-2 flex items-center gap-2">
+                    🎯 Règle des tiers
+                  </h4>
+                  <p className="text-cyan-100 text-sm">
+                    Divisez mentalement l'image en 9 parties égales avec 2 lignes horizontales et 2 verticales. 
+                    Placez vos sujets importants aux intersections pour une composition dynamique et équilibrée.
+                  </p>
+                </div>
+
+                {/* Carte concept 3 */}
+                <div className="bg-black/30 rounded-lg p-4 border border-blue-400/20">
+                  <h4 className="text-blue-300 font-semibold mb-2 flex items-center gap-2">
+                    🌅 Golden Hour
+                  </h4>
+                  <p className="text-cyan-100 text-sm">
+                    Les meilleures lumières naturelles apparaissent 1h après le lever et 1h avant le coucher du soleil. 
+                    {results.brightness > 150 ? " Votre image semble bénéficier d'une belle lumière naturelle !" : 
+                     " Essayez de shooter pendant ces heures magiques pour des couleurs chaudes et des ombres douces."}
+                  </p>
+                </div>
+
+                {/* Carte concept 4 */}
+                <div className="bg-black/30 rounded-lg p-4 border border-blue-400/20">
+                  <h4 className="text-blue-300 font-semibold mb-2 flex items-center gap-2">
+                    📏 Profondeur de champ
+                  </h4>
+                  <p className="text-cyan-100 text-sm">
+                    Une grande ouverture (f/1.8-f/2.8) crée un arrière-plan flou (bokeh), idéal pour les portraits. 
+                    Une petite ouverture (f/8-f/16) garde tout net, parfait pour les paysages.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Conseils d'amélioration (conservé) */}
             {results.advice && results.advice.length > 0 && (
               <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
                 <h3 className="text-white text-2xl font-bold mb-4">💡 Actions rapides</h3>
