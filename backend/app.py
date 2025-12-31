@@ -196,10 +196,6 @@ def generate_smart_caption(analysis):
 
 
 def analyze_image_from_array(img_rgb):
-    """
-    Version simplifiée d'analyze_image() qui prend un array numpy
-    au lieu d'un chemin fichier
-    """
     import cv2
     from core import (
         compute_brightness, compute_contrast, compute_sharpness,
@@ -213,46 +209,45 @@ def analyze_image_from_array(img_rgb):
     from analysis import (
         dominant_colors, analyze_composition, build_zone_report
     )
-    from ai_models import predict_scene, compute_all_style_affinities, compute_quality_score, blip_caption
+    from ai_models import (
+        predict_scene, compute_all_style_affinities,
+        compute_quality_score, blip_caption
+    )
     from composition_rules import CompositionAnalyzer
-    
+
     gray = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2GRAY)
-    
-    # Métriques basiques
+
+    # --- Métriques ---
     brightness = compute_brightness(img_rgb)
     contrast = compute_contrast(img_rgb)
     sharpness = compute_sharpness(img_rgb)
     noise = estimate_noise_luminance(img_rgb)
     saturation = compute_saturation(img_rgb)
-    
-    # Détections
+
     is_blurry = sharpness < 80.0
     motion_blur_detected, motion_blur_score = detect_motion_blur(img_rgb)
     vignette_flag, vign_score = detect_vignette_advanced(img_rgb)
     chrom_ab_flag, chrom_score = detect_chromatic_aberration(img_rgb)
     horizon_angle = detect_horizon_angle(gray)
-    
-    # Couleurs et objets
+
     colors = dominant_colors(img_rgb)
     subjects = detect_objects(img_rgb)
     faces = detect_faces_mediapipe(img_rgb)
-    
-    # Composition et scène
+
     comp = analyze_composition(img_rgb, subjects)
     scene = predict_scene(img_rgb)
-    
-    # 🆕 Génération du caption (légende)
 
-
-    
-    # Zones
     try:
-        zones = build_zone_report(img_rgb, subjects=subjects, scene_type=scene.get('scene_type', 'unknown'))
+        zones = build_zone_report(
+            img_rgb,
+            subjects=subjects,
+            scene_type=scene.get('scene_type', 'unknown')
+        )
     except Exception as e:
         print(f"Erreur zones: {e}")
         zones = []
-    
-    # Construction du dict analysis
+
+    # --- Construction analysis ---
     analysis = {
         'path': 'web_upload',
         'width': int(img_rgb.shape[1]),
@@ -270,53 +265,44 @@ def analyze_image_from_array(img_rgb):
         'faces': faces,
         'composition': comp,
         'scene': scene,
-       # 'caption': caption,  # 🆕 AJOUT
         'horizon_angle': round(float(horizon_angle), 2),
         'zones': zones
     }
-    # ✅ NOUVELLE SECTION - Génération caption
-caption = None
 
-# Essayer BLIP d'abord
-try:
-    print("  💬 Tentative BLIP...")
-    caption, error = blip_caption(img_rgb)
-    print(f"  BLIP résultat: caption={caption}, error={error}")
-    
-    if error or not caption or caption.strip() == "" or caption == "Image d'analyse":
-        print("  ⚠️ BLIP invalide, passage au fallback")
-        caption = None
-except Exception as e:
-    print(f"  ❌ Erreur BLIP: {e}")
+    # --- CAPTION ---
     caption = None
-
-# Fallback intelligent si BLIP a échoué
-if not caption:
-    print("  🤖 Génération caption intelligent...")
-    caption = generate_smart_caption(analysis)
-    print(f"  ✅ Caption final: {caption}")
-
-# Ajouter le caption au dict
-    analysis['caption'] = caption
-    
-    # Score de qualité
-    quality = compute_quality_score(analysis)
-    analysis['quality_score'] = quality
-    
-    # Style affinities (Top 5)
-    style_affinities = compute_all_style_affinities(img_rgb, analysis)
-    analysis['style_affinities'] = style_affinities
-    
-    # Analyse composition rules
     try:
-        composition_analyzer = CompositionAnalyzer()
-        composition_rules_analysis = composition_analyzer.analyze_all_rules(img_rgb, subjects, analysis)
-        analysis['composition_rules'] = composition_rules_analysis
+        print("💬 Tentative BLIP...")
+        caption, error = blip_caption(img_rgb)
+        if error or not caption or caption.strip() == "" or caption == "Image d'analyse":
+            caption = None
+    except Exception as e:
+        print(f"Erreur BLIP: {e}")
+        caption = None
+
+    if not caption:
+        caption = generate_smart_caption(analysis)
+
+    analysis['caption'] = caption
+
+    # --- QUALITÉ ---
+    analysis['quality_score'] = compute_quality_score(analysis)
+
+    # --- STYLES ---
+    analysis['style_affinities'] = compute_all_style_affinities(img_rgb, analysis)
+
+    # --- RÈGLES DE COMPOSITION ---
+    try:
+        analyzer = CompositionAnalyzer()
+        analysis['composition_rules'] = analyzer.analyze_all_rules(
+            img_rgb, subjects, analysis
+        )
     except Exception as e:
         print(f"Erreur composition rules: {e}")
         analysis['composition_rules'] = {}
-    
+
     return analysis
+
 
 def extract_best_style(analysis):
     """Extraire le meilleur style pour l'affichage"""
