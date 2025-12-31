@@ -242,19 +242,8 @@ def analyze_image_from_array(img_rgb):
     scene = predict_scene(img_rgb)
     
     # 🆕 Génération du caption (légende)
-    caption = None
-    try:
-        print("  💬 Génération de la légende avec BLIP...")
-        caption, error = blip_caption(img_rgb)
-        print(f"CAPTION BRUTE = {caption}")
-        print(f"ERREUR BLIP = {error}")
-        
-        if error or not caption or caption.strip() == "":
-            print("  ⚠️ BLIP a échoué, utilisation du fallback intelligent")
-            caption = None  # Force le fallback
-    except Exception as e:
-        print(f"  ⚠️ Erreur BLIP: {e}")
-        caption = None
+
+
     
     # Zones
     try:
@@ -285,7 +274,30 @@ def analyze_image_from_array(img_rgb):
         'horizon_angle': round(float(horizon_angle), 2),
         'zones': zones
     }
+    # ✅ NOUVELLE SECTION - Génération caption
+caption = None
+
+# Essayer BLIP d'abord
+try:
+    print("  💬 Tentative BLIP...")
+    caption, error = blip_caption(img_rgb)
+    print(f"  BLIP résultat: caption={caption}, error={error}")
     
+    if error or not caption or caption.strip() == "" or caption == "Image d'analyse":
+        print("  ⚠️ BLIP invalide, passage au fallback")
+        caption = None
+except Exception as e:
+    print(f"  ❌ Erreur BLIP: {e}")
+    caption = None
+
+# Fallback intelligent si BLIP a échoué
+if not caption:
+    print("  🤖 Génération caption intelligent...")
+    caption = generate_smart_caption(analysis)
+    print(f"  ✅ Caption final: {caption}")
+
+# Ajouter le caption au dict
+    analysis['caption'] = caption
     
     # Score de qualité
     quality = compute_quality_score(analysis)
