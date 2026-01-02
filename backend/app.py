@@ -1,6 +1,6 @@
 """
-app.py - Avec Hugging Face Inference API
-Installation : pip install requests
+app.py - Avec Google Vision API + Hugging Face API
+Installation : pip install requests google-cloud-vision
 """
 
 from flask import Flask, request, jsonify
@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 import io
 import requests
 
-# Charger les variables d'environnement dès le début
+# Charger .env
 load_dotenv()
 
 # Configuration
@@ -27,63 +27,195 @@ sys.path.insert(0, BASE_DIR)
 from analyzer import analyze_image
 from core import make_json_safe
 
+# Importer Google Vision (optionnel)
+try:
+    from google.cloud import vision
+    from google.oauth2 import service_account
+    GOOGLE_VISION_AVAILABLE = True
+except ImportError:
+    GOOGLE_VISION_AVAILABLE = False
+    print("⚠️ Google Cloud Vision non installé")
+
 app = Flask(__name__)
 CORS(app)
 
+# Variables globales
+_vision_client = None
+
 
 # ==========================================
-# HUGGING FACE API
+# GOOGLE VISION API
 # ==========================================
 
-# 🔑 Le token est maintenant récupéré depuis le fichier .env
+def init_google_vision():
+    """Initialise Google Vision API"""
+    global _vision_client
+    
+    if not GOOGLE_VISION_AVAILABLE:
+        return False
+    
+    if _vision_client is not None:
+        return True
+    
+    try:
+        credentials_path = os.path.join(BASE_DIR, 'google-vision-credentials.json')
+        
+        if not os.path.exists(credentials_path):
+            print(f"⚠️ Credentials Google non trouvés: {credentials_path}")
+            return False
+        
+        credentials = service_account.Credentials.from_service_account_file(
+            credentials_path
+        )
+        
+        _vision_client = vision.ImageAnnotatorClient(credentials=credentials)
+        print("✅ Google Vision API initialisée")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Erreur init Google Vision: {e}")
+        return False
+
+
+def generate_caption_google_vision(img_rgb):
+    """Génère description avec Google Vision API"""
+    try:
+        if not init_google_vision():
+            return None, "Google Vision non initialisée"
+        
+        print("  🔍 Génération Google Vision...")
+        
+        img_pil = Image.fromarray(img_rgb)
+        img_byte_arr = io.BytesIO()
+        img_pil.save(img_byte_arr, format='JPEG', quality=85)
+        content = img_byte_arr.getvalue()
+        
+        image = vision.Image(content=content)
+        
+        # Détections
+        label_response = _vision_client.label_detection(image=image)
+        labels = [label.description for label in label_response.label_annotations[:8]]
+        
+        face_response = _vision_client.face_detection(image=image)
+        faces = face_response.face_annotations
+        
+        # Construction description
+        caption = build_caption_from_google(labels, faces)
+        
+        print(f"  ✅ Google Vision: {caption}")
+        return caption, None
+        
+    except Exception as e:
+        print(f"  ❌ Erreur Google Vision: {e}")
+        return None, str(e)
+
+
+def build_caption_from_google(labels, faces):
+    """Construit description depuis Google Vision"""
+    translations = {
+        'person': 'personne', 'man': 'homme', 'woman': 'femme',
+        'dog': 'chien', 'cat': 'chat', 'cap': 'casquette',
+        'glasses': 'lunettes', 'smile': 'souriant', 'building': 'bâtiment',
+        'street': 'rue', 'city': 'ville', 'car': 'voiture',
+        'tree': 'arbre', 'sky': 'ciel', 'nature': 'nature'
+    }
+    
+    labels_fr = [translations.get(l.lower(), l.lower()) for l in labels[:5]]
+    parts = []
+    
+    # Visages
+    if faces:
+        nb = len(faces)
+        if nb == 1:
+            if 'homme' in labels_fr:
+                parts.append("Un homme")
+            elif 'femme' in labels_fr:
+                parts.append("Une femme")
+            else:
+                parts.append("Une personne")
+            
+            # Vérifier émotion
+            face = faces[0]
+            likelihood_scores = {
+                'VERY_UNLIKELY': 0, 'UNLIKELY': 1, 'POSSIBLE': 2,
+                'LIKELY': 3, 'VERY_LIKELY': 4
+            }
+            joy_score = likelihood_scores.get(str(face.joy_likelihood).split('.')[-1], 0)
+            if joy_score >= 3:
+                parts.append("souriant")
+        else:
+            parts.append(f"{nb} personnes")
+    
+    # Accessoires
+    accessories = [l for l in labels_fr if l in ['casquette', 'chapeau', 'lunettes']]
+    if accessories:
+        parts.append(f"portant une {accessories[0]}")
+    
+    # Contexte
+    if 'rue' in labels_fr or 'ville' in labels_fr:
+        parts.append("dans un environnement urbain")
+    elif 'nature' in labels_fr:
+        parts.append("dans la nature")
+    
+    if not parts:
+        return f"Photo montrant {', '.join(labels_fr[:3])}." if labels_fr else "Photographie."
+    
+    caption = ' '.join(parts)
+    caption = caption[0].upper() + caption[1:] if caption else "Photographie"
+    
+    if not caption.endswith('.'):
+        caption += '.'
+    
+    return caption
+
+
+# ==========================================
+# HUGGING FACE API (URL CORRIGÉE)
+# ==========================================
+
 HUGGINGFACE_API_TOKEN = os.getenv("HF_TOKEN")
-
-# Modèles disponibles (vous pouvez en tester d'autres)
-HF_MODELS = {
-    'blip2': 'Salesforce/blip2-opt-2.7b',
-    'blip': 'Salesforce/blip-image-captioning-large',
-    'git': 'microsoft/git-large-coco'
-}
 
 
 def generate_caption_huggingface(img_rgb, model_name='blip'):
     """
-    Génère une description avec l'API Hugging Face Inference
-    
-    Args:
-        img_rgb: Image numpy array RGB
-        model_name: 'blip2', 'blip', ou 'git'
+    Génère description avec Hugging Face API
+    URL corrigée pour éviter 404
     """
     try:
-        # Vérifier si le token existe
-        if not HUGGINGFACE_API_TOKEN:
-            print("  ⚠️ Token Hugging Face manquant (vérifiez votre fichier .env)")
+        token = HUGGINGFACE_API_TOKEN.strip() if HUGGINGFACE_API_TOKEN else None
+        
+        if not token or token == "hf_VotreTokenIci":
+            print("  ⚠️ Token Hugging Face non configuré")
             return None, "Token non configuré"
         
-        print(f"  🤗 Génération avec Hugging Face ({model_name})...")
+        print(f"  🤗 Génération Hugging Face ({model_name})...")
         
-        # Convertir l'image en bytes
-        img_pil = Image.fromarray(img_rgb)
+        # Réduire l'image
+        img_pil = Image.fromarray(img_rgb.astype('uint8'))
+        img_pil.thumbnail((800, 800))
+        
         buffered = io.BytesIO()
         img_pil.save(buffered, format="JPEG", quality=85)
         img_bytes = buffered.getvalue()
         
-        # URL de l'API Hugging Face
-        model_id = HF_MODELS.get(model_name, HF_MODELS['blip'])
+        # ✅ URL CORRIGÉE - API Inference officielle
+        model_id = "Salesforce/blip-image-captioning-large"
         api_url = f"https://api-inference.huggingface.co/models/{model_id}"
         
-        # Headers avec votre token
         headers = {
-            "Authorization": f"Bearer {HUGGINGFACE_API_TOKEN}"
+            "Authorization": f"Bearer {token}",
         }
         
-        # Envoyer la requête
+        print(f"  🚀 Requête vers : {api_url}")
+        
         response = requests.post(api_url, headers=headers, data=img_bytes, timeout=30)
+        
+        print(f"  DEBUG STATUS: {response.status_code}")
         
         if response.status_code == 200:
             result = response.json()
             
-            # Le format de réponse varie selon le modèle
+            # Parser la réponse
             if isinstance(result, list) and len(result) > 0:
                 caption_en = result[0].get('generated_text', '')
             elif isinstance(result, dict):
@@ -91,7 +223,6 @@ def generate_caption_huggingface(img_rgb, model_name='blip'):
             else:
                 caption_en = str(result)
             
-            # Nettoyer et traduire
             caption_en = caption_en.strip()
             caption_fr = translate_simple(caption_en)
             
@@ -99,109 +230,41 @@ def generate_caption_huggingface(img_rgb, model_name='blip'):
             return caption_fr, None
             
         elif response.status_code == 503:
-            # Modèle en cours de chargement
-            print("  ⏳ Modèle en cours de chargement, réessayez dans 20s")
+            print("  ⏳ Modèle en chargement, réessayez dans 20s")
             return None, "Modèle en chargement"
             
         else:
-            error_msg = f"Erreur API: {response.status_code}"
-            print(f"  ❌ {error_msg}")
-            return None, error_msg
+            print(f"  DEBUG MSG: {response.text[:200]}")
+            return None, f"Erreur {response.status_code}"
         
     except requests.exceptions.Timeout:
-        print("  ❌ Timeout de l'API")
+        print("  ❌ Timeout")
         return None, "Timeout"
     except Exception as e:
-        print(f"  ❌ Erreur Hugging Face: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"  ❌ Erreur: {str(e)}")
         return None, str(e)
 
 
 def translate_simple(english_text):
     """Traduction simple anglais -> français"""
     trans = {
-        # Personnes
-        'a man': 'un homme',
-        'a woman': 'une femme',
-        'a person': 'une personne',
-        'a boy': 'un garçon',
-        'a girl': 'une fille',
-        'people': 'des personnes',
-        
-        # Vêtements et accessoires
-        'wearing': 'portant',
-        'a hat': 'un chapeau',
-        'a cap': 'une casquette',
-        'glasses': 'des lunettes',
-        'sunglasses': 'des lunettes de soleil',
-        'a shirt': 'une chemise',
-        'a jacket': 'une veste',
-        'a suit': 'un costume',
-        'a dress': 'une robe',
-        
-        # Actions
-        'smiling': 'souriant',
-        'standing': 'debout',
-        'sitting': 'assis',
-        'walking': 'marchant',
-        'running': 'courant',
-        'looking at': 'regardant',
-        'holding': 'tenant',
-        'posing': 'posant',
-        
-        # Lieux
-        'in front of': 'devant',
-        'behind': 'derrière',
-        'next to': 'à côté de',
-        'near': 'près de',
-        'a wall': 'un mur',
-        'a building': 'un bâtiment',
-        'a house': 'une maison',
-        'a street': 'une rue',
-        'the street': 'la rue',
-        'outside': 'à l\'extérieur',
-        'inside': 'à l\'intérieur',
-        'indoor': 'en intérieur',
-        'outdoor': 'en extérieur',
-        
-        # Objets
-        'a car': 'une voiture',
-        'a tree': 'un arbre',
-        'trees': 'des arbres',
-        'the sky': 'le ciel',
-        'a phone': 'un téléphone',
-        'a camera': 'un appareil photo',
-        'a table': 'une table',
-        'a chair': 'une chaise',
-        
-        # Couleurs
-        'red': 'rouge',
-        'blue': 'bleu',
-        'green': 'vert',
-        'yellow': 'jaune',
-        'black': 'noir',
-        'white': 'blanc',
-        'gray': 'gris',
-        
-        # Autres
-        'with': 'avec',
-        'and': 'et',
-        'on': 'sur',
-        'of': 'de',
-        'the': 'le/la',
-        'a': 'un/une'
+        'a man': 'un homme', 'a woman': 'une femme', 'a person': 'une personne',
+        'wearing': 'portant', 'a cap': 'une casquette', 'a hat': 'un chapeau',
+        'glasses': 'des lunettes', 'sunglasses': 'lunettes de soleil',
+        'smiling': 'souriant', 'standing': 'debout', 'sitting': 'assis',
+        'in front of': 'devant', 'behind': 'derrière', 'next to': 'à côté de',
+        'with': 'avec', 'and': 'et', 'red': 'rouge', 'blue': 'bleu',
+        'black': 'noir', 'white': 'blanc', 'a wall': 'un mur',
+        'a building': 'un bâtiment', 'a car': 'une voiture',
+        'a tree': 'un arbre', 'the sky': 'le ciel',
+        'looking at': 'regardant', 'holding': 'tenant'
     }
     
-    # Traduire
     text_fr = english_text.lower()
     for en, fr in trans.items():
         text_fr = text_fr.replace(en, fr)
     
-    # Capitaliser la première lettre
-    text_fr = text_fr[0].upper() + text_fr[1:] if text_fr else english_text
-    
-    return text_fr
+    return text_fr[0].upper() + text_fr[1:] if text_fr else english_text
 
 
 # ==========================================
@@ -219,7 +282,6 @@ def generate_smart_caption(analysis):
         
         parts = []
         
-        # Type de scène
         scene_descriptions = {
             'mountain': 'Une photo de montagne',
             'forest': 'Une photo en forêt',
@@ -227,8 +289,6 @@ def generate_smart_caption(analysis):
             'urban': 'Une photo urbaine',
             'street': 'Une photo de rue',
             'indoor': 'Une photo en intérieur',
-            'sky': 'Une photo avec un ciel visible',
-            'nature': 'Une photo de nature',
             'landscape': 'Un paysage'
         }
         
@@ -242,29 +302,13 @@ def generate_smart_caption(analysis):
         if not scene_found:
             parts.append('Une photographie')
         
-        # Sujets
         if len(faces) > 0:
             parts.append('avec un portrait' if len(faces) == 1 else f'avec {len(faces)} personnes')
         elif subjects:
             subject_classes = [s['class'] for s in subjects[:3]]
             if 'person' in subject_classes:
                 parts.append('montrant une ou plusieurs personnes')
-            else:
-                translations = {
-                    'car': 'une voiture', 'dog': 'un chien', 'cat': 'un chat',
-                    'tree': 'des arbres', 'building': 'des bâtiments', 'bird': 'un oiseau',
-                    'flower': 'des fleurs', 'bicycle': 'un vélo', 'motorcycle': 'une moto'
-                }
-                
-                translated = [translations.get(s, s) for s in subject_classes]
-                if len(translated) == 1:
-                    parts.append(f'avec {translated[0]}')
-                elif len(translated) == 2:
-                    parts.append(f'avec {translated[0]} et {translated[1]}')
-                else:
-                    parts.append(f'avec {", ".join(translated[:2])} et plus')
         
-        # Ambiance
         if brightness < 80:
             parts.append('dans une ambiance sombre')
         elif brightness > 180:
@@ -272,21 +316,12 @@ def generate_smart_caption(analysis):
         else:
             parts.append('bien éclairée')
         
-        # Qualité
-        quality = analysis.get('quality_score', 50)
-        if quality > 75:
-            parts.append('de haute qualité')
-        elif quality > 50:
-            parts.append('de bonne qualité')
-        
         caption = ' '.join(parts) + '.'
-        caption = caption[0].upper() + caption[1:]
-        
-        return caption
+        return caption[0].upper() + caption[1:]
         
     except Exception as e:
-        print(f"Erreur generate_smart_caption: {e}")
-        return "Photographie professionnelle analysée."
+        print(f"Erreur fallback: {e}")
+        return "Photographie professionnelle."
 
 
 # ==========================================
@@ -294,7 +329,7 @@ def generate_smart_caption(analysis):
 # ==========================================
 
 def analyze_image_from_array(img_rgb):
-    """Analyse avec Hugging Face API + Fallback"""
+    """Analyse avec TRIPLE caption : Google + HuggingFace + Fallback"""
     import cv2
     from core import (
         compute_brightness, compute_contrast, compute_sharpness,
@@ -364,32 +399,43 @@ def analyze_image_from_array(img_rgb):
         'zones': zones
     }
 
-    # ✅ DOUBLE CAPTION : Hugging Face API + Fallback
+    # ✅ TRIPLE CAPTION
+    caption_google = None
     caption_hf = None
     caption_fallback = None
     
-    # 1. Hugging Face API
+    # 1. Google Vision
     try:
-        print("🤗 Tentative Hugging Face API...")
-        # Essayer BLIP d'abord (plus rapide que BLIP-2)
-        caption_hf, error = generate_caption_huggingface(img_rgb, model_name='blip')
-        
+        print("🔍 Tentative Google Vision...")
+        caption_google, error = generate_caption_google_vision(img_rgb)
+        if error:
+            print(f"  ⚠️ Google Vision échoué: {error}")
+    except Exception as e:
+        print(f"  ❌ Erreur Google Vision: {e}")
+    
+    # 2. Hugging Face
+    try:
+        print("🤗 Tentative Hugging Face...")
+        caption_hf, error = generate_caption_huggingface(img_rgb)
         if error:
             print(f"  ⚠️ Hugging Face échoué: {error}")
     except Exception as e:
         print(f"  ❌ Erreur Hugging Face: {e}")
     
-    # 2. Fallback
+    # 3. Fallback
     caption_fallback = generate_smart_caption(analysis)
     
     # Sélectionner la meilleure
-    if caption_hf:
+    if caption_google:
+        caption_main = caption_google
+    elif caption_hf:
         caption_main = caption_hf
     else:
         caption_main = caption_fallback
     
-    # Stocker les captions
+    # Stocker toutes les captions
     analysis['caption'] = caption_main
+    analysis['caption_google'] = caption_google or "Non disponible"
     analysis['caption_huggingface'] = caption_hf or "Non disponible"
     analysis['caption_fallback'] = caption_fallback
 
@@ -416,7 +462,6 @@ def analyze_image_from_array(img_rgb):
 
 @app.route('/api/analyze', methods=['POST'])
 def api_analyze():
-    """Endpoint analyse"""
     try:
         data = request.json
         image_data = data.get('image')
@@ -424,7 +469,6 @@ def api_analyze():
         if not image_data:
             return jsonify({'error': 'Pas d\'image fournie'}), 400
         
-        # Décoder image
         image_data = image_data.replace('data:image/jpeg;base64,', '')
         image_data = image_data.replace('data:image/png;base64,', '')
         image_data = image_data.replace('data:image/webp;base64,', '')
@@ -465,7 +509,6 @@ def api_analyze():
 
 
 def extract_best_style(analysis):
-    """Extraire meilleur style"""
     try:
         style_affinities = analysis.get('style_affinities', {})
         best_match = style_affinities.get('best_match')
@@ -485,10 +528,8 @@ def extract_best_style(analysis):
 
 
 def generate_ai_prompt(analysis):
-    """Générer prompt IA"""
     try:
         scene = analysis.get('scene', {})
-        scene_type = scene.get('scene_type', 'unknown').lower()
         brightness = analysis.get('brightness', 128)
         subjects = analysis.get('subjects', [])
         faces = analysis.get('faces', [])
@@ -509,21 +550,15 @@ def generate_ai_prompt(analysis):
         if brightness < 80:
             prompt_parts.append("moody lighting")
         elif brightness > 180:
-            prompt_parts.append("bright, golden hour lighting")
-        else:
-            prompt_parts.append("soft natural lighting")
+            prompt_parts.append("golden hour lighting")
         
-        prompt = ", ".join(prompt_parts)
-        prompt = prompt[0].upper() + prompt[1:] if prompt else "Professional photograph"
-        prompt += ". 8k, professional photography"
-        
-        return prompt
+        prompt = ", ".join(prompt_parts) + ". 8k, professional photography"
+        return prompt[0].upper() + prompt[1:]
     except:
-        return "Professional photograph, natural lighting, 8k"
+        return "Professional photograph, 8k"
 
 
 def extract_advice(analysis):
-    """Extraire conseils"""
     advice = []
     
     brightness = analysis.get('brightness', 128)
@@ -534,9 +569,9 @@ def extract_advice(analysis):
         advice.append("🔍 Augmente la netteté")
     
     if brightness < 80:
-        advice.append("☀️ Photo sombre, augmente l'exposition")
+        advice.append("☀️ Augmente l'exposition")
     elif brightness > 180:
-        advice.append("⚡ Photo surexposée")
+        advice.append("⚡ Réduis l'exposition")
     
     if noise > 40:
         advice.append("🔇 Réduis le bruit")
@@ -549,7 +584,7 @@ def extract_advice(analysis):
 
 @app.route('/', methods=['GET'])
 def index():
-    return jsonify({'status': 'API running with Hugging Face', 'version': '2.1'})
+    return jsonify({'status': 'API Google Vision + Hugging Face', 'version': '3.0'})
 
 
 @app.route('/health', methods=['GET'])
