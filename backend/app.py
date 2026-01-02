@@ -13,8 +13,12 @@ import json
 import os
 import sys
 from PIL import Image
+from dotenv import load_dotenv
 import io
 import requests
+
+# Charger les variables d'environnement dès le début
+load_dotenv()
 
 # Configuration
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -31,9 +35,8 @@ CORS(app)
 # HUGGING FACE API
 # ==========================================
 
-# 🔑 Remplacez par votre token Hugging Face
-# Obtenez-le sur : https://huggingface.co/settings/tokens
-HUGGINGFACE_API_TOKEN = "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"
+# 🔑 Le token est maintenant récupéré depuis le fichier .env
+HUGGINGFACE_API_TOKEN = os.getenv("HF_TOKEN")
 
 # Modèles disponibles (vous pouvez en tester d'autres)
 HF_MODELS = {
@@ -52,9 +55,9 @@ def generate_caption_huggingface(img_rgb, model_name='blip'):
         model_name: 'blip2', 'blip', ou 'git'
     """
     try:
-        # Vérifier le token
-        if HUGGINGFACE_API_TOKEN == "hf_VotreTokenIci":
-            print("  ⚠️ Token Hugging Face non configuré")
+        # Vérifier si le token existe
+        if not HUGGINGFACE_API_TOKEN:
+            print("  ⚠️ Token Hugging Face manquant (vérifiez votre fichier .env)")
             return None, "Token non configuré"
         
         print(f"  🤗 Génération avec Hugging Face ({model_name})...")
