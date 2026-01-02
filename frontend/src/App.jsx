@@ -357,53 +357,37 @@ ${results.advice?.join('\n') || 'Aucun conseil spécifique'}
               </p>
             </div>
 
-            {/* Comparaison des 3 descriptions */}
-            {(results.full_analysis?.caption_google || results.full_analysis?.caption_blip2 || results.full_analysis?.caption_fallback) && (
+            {/* Comparaison des 2 descriptions */}
+            {(results.full_analysis?.caption_huggingface || results.full_analysis?.caption_fallback) && (
               <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
                 <h3 className="text-white text-2xl font-bold mb-6 flex items-center gap-2">
                   <Eye className="w-7 h-7 text-purple-400" />
                   Comparaison des descriptions IA
                 </h3>
                 
-                <div className="grid md:grid-cols-3 gap-4">
-                  {/* Google Vision */}
-                  <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl p-5 border border-blue-400/30">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                        G
-                      </div>
-                      <div>
-                        <h4 className="text-blue-300 font-bold">Google Vision</h4>
-                        <p className="text-blue-200 text-xs">API Cloud</p>
-                      </div>
-                    </div>
-                    <p className="text-blue-100 text-sm leading-relaxed">
-                      {results.full_analysis.caption_google || 'Non disponible'}
-                    </p>
-                    {results.full_analysis.caption_google && results.full_analysis.caption_google !== 'Non disponible' && (
-                      <div className="mt-3 text-green-400 text-xs flex items-center gap-1">
-                        <span>✓</span> Disponible
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* BLIP-2 */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  {/* Hugging Face */}
                   <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl p-5 border border-purple-400/30">
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                        B
+                      <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                        🤗
                       </div>
                       <div>
-                        <h4 className="text-purple-300 font-bold">BLIP-2</h4>
-                        <p className="text-purple-200 text-xs">Salesforce AI</p>
+                        <h4 className="text-purple-300 font-bold">Hugging Face AI</h4>
+                        <p className="text-purple-200 text-xs">BLIP Vision Model</p>
                       </div>
                     </div>
-                    <p className="text-purple-100 text-sm leading-relaxed">
-                      {results.full_analysis.caption_blip2 || 'Non disponible'}
+                    <p className="text-purple-100 text-sm leading-relaxed min-h-[60px]">
+                      {results.full_analysis.caption_huggingface || 'Non disponible'}
                     </p>
-                    {results.full_analysis.caption_blip2 && results.full_analysis.caption_blip2 !== 'Non disponible' && (
+                    {results.full_analysis.caption_huggingface && results.full_analysis.caption_huggingface !== 'Non disponible' && (
                       <div className="mt-3 text-green-400 text-xs flex items-center gap-1">
-                        <span>✓</span> Disponible
+                        <span>✓</span> Description IA détaillée
+                      </div>
+                    )}
+                    {(!results.full_analysis.caption_huggingface || results.full_analysis.caption_huggingface === 'Non disponible') && (
+                      <div className="mt-3 text-yellow-400 text-xs flex items-center gap-1">
+                        <span>⚠</span> Vérifiez votre token HF
                       </div>
                     )}
                   </div>
@@ -415,11 +399,11 @@ ${results.advice?.join('\n') || 'Aucun conseil spécifique'}
                         F
                       </div>
                       <div>
-                        <h4 className="text-orange-300 font-bold">Fallback</h4>
-                        <p className="text-orange-200 text-xs">Analyse locale</p>
+                        <h4 className="text-orange-300 font-bold">Analyse Intelligente</h4>
+                        <p className="text-orange-200 text-xs">Basée sur détections</p>
                       </div>
                     </div>
-                    <p className="text-orange-100 text-sm leading-relaxed">
+                    <p className="text-orange-100 text-sm leading-relaxed min-h-[60px]">
                       {results.full_analysis.caption_fallback || 'Non disponible'}
                     </p>
                     <div className="mt-3 text-green-400 text-xs flex items-center gap-1">
