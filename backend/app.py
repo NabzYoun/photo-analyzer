@@ -1,9 +1,6 @@
 """
-app.py - Backend Flask avec Google Vision API + BLIP-2
-Installation : 
-pip install flask flask-cors python-dotenv
-pip install google-cloud-vision
-pip install transformers pillow torch
+app.py - Avec Hugging Face Inference API
+Installation : pip install requests
 """
 
 from flask import Flask, request, jsonify
@@ -17,337 +14,199 @@ import os
 import sys
 from PIL import Image
 import io
+import requests
 
-# Configuration paths
+# Configuration
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 
-# Import modules analyzer
 from analyzer import analyze_image
 from core import make_json_safe
 
+app = Flask(__name__)
+CORS(app)
+
+
 # ==========================================
-# GOOGLE VISION API
+# HUGGING FACE API
 # ==========================================
 
-from google.cloud import vision
-from google.oauth2 import service_account
+# 🔑 Remplacez par votre token Hugging Face
+# Obtenez-le sur : https://huggingface.co/settings/tokens
+HUGGINGFACE_API_TOKEN = "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"
 
-_vision_client = None
+# Modèles disponibles (vous pouvez en tester d'autres)
+HF_MODELS = {
+    'blip2': 'Salesforce/blip2-opt-2.7b',
+    'blip': 'Salesforce/blip-image-captioning-large',
+    'git': 'microsoft/git-large-coco'
+}
 
-def init_vision_client():
-    """Initialise Google Vision API"""
-    global _vision_client
+
+def generate_caption_huggingface(img_rgb, model_name='blip'):
+    """
+    Génère une description avec l'API Hugging Face Inference
     
-    if _vision_client is not None:
-        return True
-    
+    Args:
+        img_rgb: Image numpy array RGB
+        model_name: 'blip2', 'blip', ou 'git'
+    """
     try:
-        # Chemin vers credentials JSON
-        credentials_path = os.path.join(BASE_DIR, 'google-vision-credentials.json')
+        # Vérifier le token
+        if HUGGINGFACE_API_TOKEN == "hf_VotreTokenIci":
+            print("  ⚠️ Token Hugging Face non configuré")
+            return None, "Token non configuré"
         
-        if not os.path.exists(credentials_path):
-            print(f"⚠️ Credentials non trouvés: {credentials_path}")
-            return False
+        print(f"  🤗 Génération avec Hugging Face ({model_name})...")
         
-        credentials = service_account.Credentials.from_service_account_file(
-            credentials_path
-        )
-        
-        _vision_client = vision.ImageAnnotatorClient(credentials=credentials)
-        print("✅ Google Vision API initialisée")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Erreur init Google Vision: {e}")
-        return False
-
-
-def generate_caption_google_vision(img_rgb):
-    """Génère une description avec Google Vision API"""
-    try:
-        if not init_vision_client():
-            return None, "Vision API non initialisée"
-        
-        print("  🔍 Génération Google Vision...")
-        
-        # Convertir numpy array en bytes
+        # Convertir l'image en bytes
         img_pil = Image.fromarray(img_rgb)
-        img_byte_arr = io.BytesIO()
-        img_pil.save(img_byte_arr, format='JPEG', quality=85)
-        content = img_byte_arr.getvalue()
+        buffered = io.BytesIO()
+        img_pil.save(buffered, format="JPEG", quality=85)
+        img_bytes = buffered.getvalue()
         
-        image = vision.Image(content=content)
+        # URL de l'API Hugging Face
+        model_id = HF_MODELS.get(model_name, HF_MODELS['blip'])
+        api_url = f"https://api-inference.huggingface.co/models/{model_id}"
         
-        # Détections multiples
-        label_response = _vision_client.label_detection(image=image)
-        labels = [label.description for label in label_response.label_annotations[:8]]
-        
-        face_response = _vision_client.face_detection(image=image)
-        faces = face_response.face_annotations
-        
-        text_response = _vision_client.text_detection(image=image)
-        has_text = len(text_response.text_annotations) > 0
-        
-        web_response = _vision_client.web_detection(image=image)
-        web_entities = [e.description for e in web_response.web_entities[:3] if e.description]
-        
-        # Construire description française
-        caption = build_french_caption_from_vision(labels, faces, has_text, web_entities)
-        
-        print(f"  ✅ Google Vision: {caption}")
-        return caption, None
-        
-    except Exception as e:
-        print(f"  ❌ Erreur Google Vision: {e}")
-        import traceback
-        traceback.print_exc()
-        return None, str(e)
-
-
-def build_french_caption_from_vision(labels, faces, has_text, web_entities):
-    """Construit une description française depuis Google Vision"""
-    translations = {
-        'person': 'personne', 'man': 'homme', 'woman': 'femme', 'child': 'enfant',
-        'dog': 'chien', 'cat': 'chat', 'hat': 'chapeau', 'cap': 'casquette',
-        'glasses': 'lunettes', 'sunglasses': 'lunettes de soleil', 'smile': 'souriant',
-        'building': 'bâtiment', 'street': 'rue', 'city': 'ville', 'urban': 'urbain',
-        'nature': 'nature', 'sky': 'ciel', 'tree': 'arbre', 'car': 'voiture',
-        'outdoor': 'en extérieur', 'indoor': 'en intérieur', 'landscape': 'paysage',
-        'mountain': 'montagne', 'beach': 'plage', 'forest': 'forêt', 'water': 'eau',
-        'wall': 'mur', 'standing': 'debout', 'sitting': 'assis', 'clothing': 'vêtements',
-        'shirt': 'chemise', 'jacket': 'veste', 'phone': 'téléphone', 'table': 'table'
-    }
-    
-    labels_fr = [translations.get(l.lower(), l.lower()) for l in labels[:5]]
-    
-    parts = []
-    
-    # Analyse des visages
-    if faces:
-        nb = len(faces)
-        face = faces[0]
-        
-        likelihood_scores = {'VERY_UNLIKELY': 0, 'UNLIKELY': 1, 'POSSIBLE': 2, 'LIKELY': 3, 'VERY_LIKELY': 4}
-        
-        emotions = {
-            'joy': likelihood_scores.get(str(face.joy_likelihood).split('.')[-1], 0),
-            'sorrow': likelihood_scores.get(str(face.sorrow_likelihood).split('.')[-1], 0),
-            'anger': likelihood_scores.get(str(face.anger_likelihood).split('.')[-1], 0),
-            'surprise': likelihood_scores.get(str(face.surprise_likelihood).split('.')[-1], 0)
+        # Headers avec votre token
+        headers = {
+            "Authorization": f"Bearer {HUGGINGFACE_API_TOKEN}"
         }
         
-        dominant = max(emotions, key=emotions.get)
-        score = emotions[dominant]
+        # Envoyer la requête
+        response = requests.post(api_url, headers=headers, data=img_bytes, timeout=30)
         
-        if nb == 1:
-            if 'homme' in labels_fr:
-                parts.append("Un homme")
-            elif 'femme' in labels_fr:
-                parts.append("Une femme")
+        if response.status_code == 200:
+            result = response.json()
+            
+            # Le format de réponse varie selon le modèle
+            if isinstance(result, list) and len(result) > 0:
+                caption_en = result[0].get('generated_text', '')
+            elif isinstance(result, dict):
+                caption_en = result.get('generated_text', '')
             else:
-                parts.append("Une personne")
+                caption_en = str(result)
             
-            if score >= 3:
-                emotion_fr = {'joy': 'souriant', 'sorrow': 'triste', 'anger': 'sérieux', 'surprise': 'surpris'}
-                parts.append(emotion_fr.get(dominant, ''))
+            # Nettoyer et traduire
+            caption_en = caption_en.strip()
+            caption_fr = translate_simple(caption_en)
+            
+            print(f"  ✅ Hugging Face: {caption_fr}")
+            return caption_fr, None
+            
+        elif response.status_code == 503:
+            # Modèle en cours de chargement
+            print("  ⏳ Modèle en cours de chargement, réessayez dans 20s")
+            return None, "Modèle en chargement"
+            
         else:
-            parts.append(f"{nb} personnes")
-    
-    # Accessoires
-    accessories = [l for l in labels_fr if l in ['casquette', 'chapeau', 'lunettes', 'lunettes de soleil']]
-    if accessories:
-        if len(accessories) == 1:
-            parts.append(f"portant une {accessories[0]}")
-        else:
-            parts.append(f"portant {' et '.join(accessories)}")
-    
-    # Contexte
-    contexts = {'rue': 'dans une rue', 'ville': 'en ville', 'urbain': 'en milieu urbain',
-                'nature': 'dans la nature', 'paysage': 'dans un paysage', 
-                'plage': 'à la plage', 'montagne': 'en montagne', 'forêt': 'en forêt'}
-    
-    for key, val in contexts.items():
-        if key in labels_fr:
-            parts.append(val)
-            break
-    
-    # Texte visible
-    if has_text:
-        parts.append("avec du texte visible")
-    
-    if not parts or (len(parts) == 1 and len(parts[0]) < 10):
-        caption = f"Photo montrant {', '.join(labels_fr[:3])}" if labels_fr else "Photographie"
-    else:
-        caption = ' '.join(parts)
-    
-    caption = caption[0].upper() + caption[1:] if caption else "Photographie"
-    if not caption.endswith('.'):
-        caption += '.'
-    
-    return caption
-
-
-# ==========================================
-# BLIP-2
-# ==========================================
-
-try:
-    from transformers import Blip2Processor, Blip2ForConditionalGeneration
-    import torch
-    BLIP2_AVAILABLE = True
-except ImportError:
-    BLIP2_AVAILABLE = False
-    print("⚠️ transformers ou torch non installé, BLIP-2 désactivé")
-
-_blip2_model = None
-_blip2_processor = None
-
-def load_blip2_model():
-    """Charge BLIP-2 une seule fois"""
-    global _blip2_model, _blip2_processor
-    
-    if not BLIP2_AVAILABLE:
-        return False
-    
-    if _blip2_model is None:
-        try:
-            print("🔄 Chargement BLIP-2 (peut prendre 1-2 minutes)...")
-            
-            model_name = "Salesforce/blip2-opt-2.7b"
-            
-            _blip2_processor = Blip2Processor.from_pretrained(model_name)
-            _blip2_model = Blip2ForConditionalGeneration.from_pretrained(
-                model_name,
-                torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
-            )
-            
-            if torch.cuda.is_available():
-                _blip2_model = _blip2_model.cuda()
-                print("✅ BLIP-2 chargé sur GPU")
-            else:
-                print("✅ BLIP-2 chargé sur CPU (peut être lent)")
-                
-            return True
-        except Exception as e:
-            print(f"❌ Erreur chargement BLIP-2: {e}")
-            return False
-    
-    return True
-
-
-def generate_caption_blip2(img_rgb):
-    """Génère une description avec BLIP-2"""
-    try:
-        if not load_blip2_model():
-            return None, "BLIP-2 non disponible"
+            error_msg = f"Erreur API: {response.status_code}"
+            print(f"  ❌ {error_msg}")
+            return None, error_msg
         
-        print("  🎨 Génération BLIP-2...")
-        
-        img_pil = Image.fromarray(img_rgb)
-        inputs = _blip2_processor(img_pil, return_tensors="pt")
-        
-        if torch.cuda.is_available():
-            inputs = {k: v.cuda() for k, v in inputs.items()}
-        
-        with torch.no_grad():
-            generated_ids = _blip2_model.generate(
-                **inputs,
-                max_length=50,
-                num_beams=5,
-                temperature=0.7
-            )
-        
-        caption_en = _blip2_processor.decode(generated_ids[0], skip_special_tokens=True).strip()
-        caption_fr = translate_simple(caption_en)
-        
-        print(f"  ✅ BLIP-2: {caption_fr}")
-        return caption_fr, None
-        
+    except requests.exceptions.Timeout:
+        print("  ❌ Timeout de l'API")
+        return None, "Timeout"
     except Exception as e:
-        print(f"  ❌ Erreur BLIP-2: {e}")
+        print(f"  ❌ Erreur Hugging Face: {e}")
+        import traceback
+        traceback.print_exc()
         return None, str(e)
 
 
 def translate_simple(english_text):
     """Traduction simple anglais -> français"""
     trans = {
-        'a man': 'un homme', 'a woman': 'une femme', 'a person': 'une personne',
-        'wearing': 'portant', 'a hat': 'un chapeau', 'a cap': 'une casquette',
-        'glasses': 'des lunettes', 'smiling': 'souriant', 'standing': 'debout',
-        'sitting': 'assis', 'in front of': 'devant', 'behind': 'derrière',
-        'with': 'avec', 'and': 'et', 'red': 'rouge', 'blue': 'bleu',
-        'black': 'noir', 'white': 'blanc', 'a wall': 'un mur',
-        'a building': 'un bâtiment', 'a car': 'une voiture', 'outside': 'à l\'extérieur',
-        'looking at': 'regardant', 'holding': 'tenant'
+        # Personnes
+        'a man': 'un homme',
+        'a woman': 'une femme',
+        'a person': 'une personne',
+        'a boy': 'un garçon',
+        'a girl': 'une fille',
+        'people': 'des personnes',
+        
+        # Vêtements et accessoires
+        'wearing': 'portant',
+        'a hat': 'un chapeau',
+        'a cap': 'une casquette',
+        'glasses': 'des lunettes',
+        'sunglasses': 'des lunettes de soleil',
+        'a shirt': 'une chemise',
+        'a jacket': 'une veste',
+        'a suit': 'un costume',
+        'a dress': 'une robe',
+        
+        # Actions
+        'smiling': 'souriant',
+        'standing': 'debout',
+        'sitting': 'assis',
+        'walking': 'marchant',
+        'running': 'courant',
+        'looking at': 'regardant',
+        'holding': 'tenant',
+        'posing': 'posant',
+        
+        # Lieux
+        'in front of': 'devant',
+        'behind': 'derrière',
+        'next to': 'à côté de',
+        'near': 'près de',
+        'a wall': 'un mur',
+        'a building': 'un bâtiment',
+        'a house': 'une maison',
+        'a street': 'une rue',
+        'the street': 'la rue',
+        'outside': 'à l\'extérieur',
+        'inside': 'à l\'intérieur',
+        'indoor': 'en intérieur',
+        'outdoor': 'en extérieur',
+        
+        # Objets
+        'a car': 'une voiture',
+        'a tree': 'un arbre',
+        'trees': 'des arbres',
+        'the sky': 'le ciel',
+        'a phone': 'un téléphone',
+        'a camera': 'un appareil photo',
+        'a table': 'une table',
+        'a chair': 'une chaise',
+        
+        # Couleurs
+        'red': 'rouge',
+        'blue': 'bleu',
+        'green': 'vert',
+        'yellow': 'jaune',
+        'black': 'noir',
+        'white': 'blanc',
+        'gray': 'gris',
+        
+        # Autres
+        'with': 'avec',
+        'and': 'et',
+        'on': 'sur',
+        'of': 'de',
+        'the': 'le/la',
+        'a': 'un/une'
     }
     
+    # Traduire
     text_fr = english_text.lower()
     for en, fr in trans.items():
         text_fr = text_fr.replace(en, fr)
     
-    return text_fr[0].upper() + text_fr[1:] if text_fr else english_text
-
-
-# ==========================================
-# FLASK APP
-# ==========================================
-
-app = Flask(__name__)
-CORS(app)
-
-@app.route('/api/analyze', methods=['POST'])
-def api_analyze():
-    """Endpoint analyse avec double caption"""
-    try:
-        data = request.json
-        image_data = data.get('image')
-        
-        if not image_data:
-            return jsonify({'error': 'Pas d\'image fournie'}), 400
-        
-        # Décoder image
-        image_data = image_data.replace('data:image/jpeg;base64,', '')
-        image_data = image_data.replace('data:image/png;base64,', '')
-        image_data = image_data.replace('data:image/webp;base64,', '')
-        
-        image_bytes = base64.b64decode(image_data)
-        nparr = np.frombuffer(image_bytes, np.uint8)
-        img_rgb = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        img_rgb = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2RGB)
-        
-        print(f"🔍 Analyse d'une image {img_rgb.shape}...")
-        analysis = analyze_image_from_array(img_rgb)
-        
-        response = {
-            'success': True,
-            'sharpness': analysis.get('sharpness', 0),
-            'brightness': analysis.get('brightness', 0),
-            'contrast': analysis.get('contrast', 0),
-            'noise': analysis.get('noise', 0),
-            'quality_score': analysis.get('quality_score', 0),
-            'subjects': analysis.get('subjects', []),
-            'style_affinities': analysis.get('style_affinities', {}),
-            'composition_rules': analysis.get('composition_rules', {}),
-            'composition_score': analysis.get('composition', {}).get('composition_score', 0),
-            'best_style': extract_best_style(analysis),
-            'ai_prompt': generate_ai_prompt(analysis),
-            'advice': extract_advice(analysis),
-            'full_analysis': make_json_safe(analysis)
-        }
-        
-        response = json.loads(json.dumps(response, default=str))
-        return jsonify(response), 200
+    # Capitaliser la première lettre
+    text_fr = text_fr[0].upper() + text_fr[1:] if text_fr else english_text
     
-    except Exception as e:
-        print(f"❌ Erreur : {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({'error': str(e), 'success': False}), 500
+    return text_fr
 
+
+# ==========================================
+# FALLBACK INTELLIGENT
+# ==========================================
 
 def generate_smart_caption(analysis):
-    """Fallback intelligent basé sur l'analyse"""
+    """Génère description basée sur l'analyse"""
     try:
         subjects = analysis.get('subjects', [])
         scene = analysis.get('scene', {})
@@ -357,6 +216,7 @@ def generate_smart_caption(analysis):
         
         parts = []
         
+        # Type de scène
         scene_descriptions = {
             'mountain': 'Une photo de montagne',
             'forest': 'Une photo en forêt',
@@ -379,6 +239,7 @@ def generate_smart_caption(analysis):
         if not scene_found:
             parts.append('Une photographie')
         
+        # Sujets
         if len(faces) > 0:
             parts.append('avec un portrait' if len(faces) == 1 else f'avec {len(faces)} personnes')
         elif subjects:
@@ -388,8 +249,10 @@ def generate_smart_caption(analysis):
             else:
                 translations = {
                     'car': 'une voiture', 'dog': 'un chien', 'cat': 'un chat',
-                    'tree': 'des arbres', 'building': 'des bâtiments'
+                    'tree': 'des arbres', 'building': 'des bâtiments', 'bird': 'un oiseau',
+                    'flower': 'des fleurs', 'bicycle': 'un vélo', 'motorcycle': 'une moto'
                 }
+                
                 translated = [translations.get(s, s) for s in subject_classes]
                 if len(translated) == 1:
                     parts.append(f'avec {translated[0]}')
@@ -398,12 +261,20 @@ def generate_smart_caption(analysis):
                 else:
                     parts.append(f'avec {", ".join(translated[:2])} et plus')
         
+        # Ambiance
         if brightness < 80:
             parts.append('dans une ambiance sombre')
         elif brightness > 180:
             parts.append('très lumineuse')
         else:
             parts.append('bien éclairée')
+        
+        # Qualité
+        quality = analysis.get('quality_score', 50)
+        if quality > 75:
+            parts.append('de haute qualité')
+        elif quality > 50:
+            parts.append('de bonne qualité')
         
         caption = ' '.join(parts) + '.'
         caption = caption[0].upper() + caption[1:]
@@ -415,8 +286,12 @@ def generate_smart_caption(analysis):
         return "Photographie professionnelle analysée."
 
 
+# ==========================================
+# ANALYSE IMAGE
+# ==========================================
+
 def analyze_image_from_array(img_rgb):
-    """Analyse image avec DOUBLE CAPTION (Google Vision + BLIP-2)"""
+    """Analyse avec Hugging Face API + Fallback"""
     import cv2
     from core import (
         compute_brightness, compute_contrast, compute_sharpness,
@@ -486,44 +361,33 @@ def analyze_image_from_array(img_rgb):
         'zones': zones
     }
 
-    # ✅ DOUBLE CAPTION : Google Vision + BLIP-2
-    caption_google = None
-    caption_blip2 = None
+    # ✅ DOUBLE CAPTION : Hugging Face API + Fallback
+    caption_hf = None
     caption_fallback = None
     
-    # 1. Google Vision
+    # 1. Hugging Face API
     try:
-        print("📊 Tentative Google Vision...")
-        caption_google, error = generate_caption_google_vision(img_rgb)
+        print("🤗 Tentative Hugging Face API...")
+        # Essayer BLIP d'abord (plus rapide que BLIP-2)
+        caption_hf, error = generate_caption_huggingface(img_rgb, model_name='blip')
+        
         if error:
-            print(f"  ⚠️ Google Vision échoué: {error}")
+            print(f"  ⚠️ Hugging Face échoué: {error}")
     except Exception as e:
-        print(f"  ❌ Erreur Google Vision: {e}")
+        print(f"  ❌ Erreur Hugging Face: {e}")
     
-    # 2. BLIP-2
-    try:
-        print("🎨 Tentative BLIP-2...")
-        caption_blip2, error = generate_caption_blip2(img_rgb)
-        if error:
-            print(f"  ⚠️ BLIP-2 échoué: {error}")
-    except Exception as e:
-        print(f"  ❌ Erreur BLIP-2: {e}")
-    
-    # 3. Fallback intelligent
+    # 2. Fallback
     caption_fallback = generate_smart_caption(analysis)
     
-    # Sélectionner la meilleure caption pour 'caption' principal
-    if caption_google:
-        caption_main = caption_google
-    elif caption_blip2:
-        caption_main = caption_blip2
+    # Sélectionner la meilleure
+    if caption_hf:
+        caption_main = caption_hf
     else:
         caption_main = caption_fallback
     
-    # Stocker toutes les captions
+    # Stocker les captions
     analysis['caption'] = caption_main
-    analysis['caption_google'] = caption_google or "Non disponible"
-    analysis['caption_blip2'] = caption_blip2 or "Non disponible"
+    analysis['caption_huggingface'] = caption_hf or "Non disponible"
     analysis['caption_fallback'] = caption_fallback
 
     # Qualité
@@ -543,8 +407,62 @@ def analyze_image_from_array(img_rgb):
     return analysis
 
 
+# ==========================================
+# ROUTES FLASK
+# ==========================================
+
+@app.route('/api/analyze', methods=['POST'])
+def api_analyze():
+    """Endpoint analyse"""
+    try:
+        data = request.json
+        image_data = data.get('image')
+        
+        if not image_data:
+            return jsonify({'error': 'Pas d\'image fournie'}), 400
+        
+        # Décoder image
+        image_data = image_data.replace('data:image/jpeg;base64,', '')
+        image_data = image_data.replace('data:image/png;base64,', '')
+        image_data = image_data.replace('data:image/webp;base64,', '')
+        
+        image_bytes = base64.b64decode(image_data)
+        nparr = np.frombuffer(image_bytes, np.uint8)
+        img_rgb = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        img_rgb = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2RGB)
+        
+        print(f"🔍 Analyse d'une image {img_rgb.shape}...")
+        analysis = analyze_image_from_array(img_rgb)
+        
+        response = {
+            'success': True,
+            'sharpness': analysis.get('sharpness', 0),
+            'brightness': analysis.get('brightness', 0),
+            'contrast': analysis.get('contrast', 0),
+            'noise': analysis.get('noise', 0),
+            'quality_score': analysis.get('quality_score', 0),
+            'subjects': analysis.get('subjects', []),
+            'style_affinities': analysis.get('style_affinities', {}),
+            'composition_rules': analysis.get('composition_rules', {}),
+            'composition_score': analysis.get('composition', {}).get('composition_score', 0),
+            'best_style': extract_best_style(analysis),
+            'ai_prompt': generate_ai_prompt(analysis),
+            'advice': extract_advice(analysis),
+            'full_analysis': make_json_safe(analysis)
+        }
+        
+        response = json.loads(json.dumps(response, default=str))
+        return jsonify(response), 200
+    
+    except Exception as e:
+        print(f"❌ Erreur : {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e), 'success': False}), 500
+
+
 def extract_best_style(analysis):
-    """Extraire le meilleur style"""
+    """Extraire meilleur style"""
     try:
         style_affinities = analysis.get('style_affinities', {})
         best_match = style_affinities.get('best_match')
@@ -586,9 +504,9 @@ def generate_ai_prompt(analysis):
             prompt_parts.append(f"in the style of {best_style['label'].lower()}")
         
         if brightness < 80:
-            prompt_parts.append("moody lighting, dark atmosphere")
+            prompt_parts.append("moody lighting")
         elif brightness > 180:
-            prompt_parts.append("bright, well-lit, golden hour lighting")
+            prompt_parts.append("bright, golden hour lighting")
         else:
             prompt_parts.append("soft natural lighting")
         
@@ -597,10 +515,8 @@ def generate_ai_prompt(analysis):
         prompt += ". 8k, professional photography"
         
         return prompt
-    
-    except Exception as e:
-        print(f"Erreur prompt: {e}")
-        return "Professional photograph, natural lighting, sharp details, 8k"
+    except:
+        return "Professional photograph, natural lighting, 8k"
 
 
 def extract_advice(analysis):
@@ -612,25 +528,25 @@ def extract_advice(analysis):
     noise = analysis.get('noise', 20)
     
     if sharpness < 100:
-        advice.append("🔍 Augmente la netteté avec Clarity")
+        advice.append("🔍 Augmente la netteté")
     
     if brightness < 80:
         advice.append("☀️ Photo sombre, augmente l'exposition")
     elif brightness > 180:
-        advice.append("⚡ Photo surexposée, réduis les highlights")
+        advice.append("⚡ Photo surexposée")
     
     if noise > 40:
-        advice.append("🔇 Bruit élevé, utilise la réduction de bruit")
+        advice.append("🔇 Réduis le bruit")
     
     if not advice:
-        advice.append("✨ Excellente photo technique !")
+        advice.append("✨ Excellente photo !")
     
     return advice[:5]
 
 
 @app.route('/', methods=['GET'])
 def index():
-    return jsonify({'status': 'API running', 'version': '2.0 - Dual Caption'})
+    return jsonify({'status': 'API running with Hugging Face', 'version': '2.1'})
 
 
 @app.route('/health', methods=['GET'])
