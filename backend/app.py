@@ -13,11 +13,8 @@ import json
 import os
 import sys
 from PIL import Image
-from dotenv import load_dotenv
 import io
 import requests
-
-load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
@@ -33,7 +30,16 @@ CORS(app)
 # HUGGING FACE API - MODÈLE QUI FONCTIONNE
 # ==========================================
 
-HUGGINGFACE_API_TOKEN = os.getenv("HF_TOKEN")
+# 🔑 METTEZ VOTRE TOKEN ICI DIRECTEMENT (ou utilisez os.getenv si .env existe)
+HUGGINGFACE_API_TOKEN = "hf_VotreTokenHuggingFaceIci"
+
+# OU si vous avez un fichier .env :
+# try:
+#     from dotenv import load_dotenv
+#     load_dotenv()
+#     HUGGINGFACE_API_TOKEN = os.getenv("HF_TOKEN")
+# except ImportError:
+#     HUGGINGFACE_API_TOKEN = "hf_VotreTokenIci"
 
 # Modèles testés et fonctionnels
 WORKING_MODELS = {
